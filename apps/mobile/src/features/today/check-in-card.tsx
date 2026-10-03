@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { AccessibilityInfo, StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '@/components/ui/card';
@@ -19,8 +19,6 @@ type CheckInCardProps = {
   symptoms: readonly PlanSymptom[];
   answered: Readonly<Record<string, number>>;
   night: DayWearableNight | null;
-  /** Question to open first; defaults to the first one. */
-  startCode?: string | null;
   /** Called once the check-in is saved, before the success screen opens. */
   onSaved?: () => void;
 };
@@ -42,14 +40,15 @@ export function CheckInCard({
   symptoms,
   answered,
   night,
-  startCode = null,
   onSaved,
 }: CheckInCardProps) {
   const codes = symptoms.map((symptom) => symptom.code);
   const [answers, setAnswers] = useState(() => toSeverities(answered));
-  const [index, setIndex] = useState(() => Math.max(0, startCode ? codes.indexOf(startCode) : 0));
+  const [index, setIndex] = useState(0);
   const [startedAt] = useState(() => Date.now());
   const submit = useSubmitCheckin(patientId, day);
+  // isPending lags a render behind, so a fast second tap needs a synchronous guard.
+  const isSaving = useRef(false);
   const isUpdate = Object.keys(answered).length > 0;
 
   const remaining = codes.filter((code) => answers[code] === undefined).length;
@@ -68,13 +67,18 @@ export function CheckInCard({
   };
 
   const save = async (all: Readonly<Record<string, Severity>>) => {
-    // mutateAsync, not mutate(onSuccess): the refetch after saving can remount this card, and
-    // per-call callbacks are dropped once it unmounts.
+    if (isSaving.current) return;
+    isSaving.current = true;
+    // mutateAsync, not mutate(onSuccess): per-call callbacks are dropped if the card unmounts
+    // (Home swaps in the done card) before the save settles.
     try {
       await submit.mutateAsync({ answers: all });
     } catch {
       return; // Shown through submit.isError, with Try again.
+    } finally {
+      isSaving.current = false;
     }
+    AccessibilityInfo.announceForAccessibility('Check-in saved');
     onSaved?.();
     router.push({
       pathname: '/checkin-done',
@@ -84,17 +88,15 @@ export function CheckInCard({
   };
 
   const handlePick = (severity: Severity) => {
-    if (!open || submit.isPending) return;
+    if (!open || isSaving.current) return;
     const next = { ...answers, [open.code]: severity };
     setAnswers(next);
     if (index < symptoms.length - 1) {
       goTo(index + 1);
       return;
     }
-    // Last question: save, unless an earlier one was skipped (e.g. editing from a chip).
-    const skipped = codes.findIndex((code) => next[code] === undefined);
-    if (skipped === -1) save(next);
-    else goTo(skipped);
+    // Questions run in order from the first, so the last answer completes the check-in.
+    save(next);
   };
 
   if (symptoms.length === 0) {

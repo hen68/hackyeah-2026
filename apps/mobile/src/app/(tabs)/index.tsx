@@ -1,5 +1,4 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -38,15 +37,15 @@ export default function TodayScreen() {
   const dayQuery = useDay(day);
   const plan = usePlanSymptoms(patientId);
   const checkinDays = useCheckinDays(patientId);
-  /** Set while today's saved check-in is reopened; holds the question to start at. */
-  const [editing, setEditing] = useState<{ code: string | null } | null>(null);
   // Background refetch errors keep the card (and its unsaved answers) on screen.
   const error = (!dayQuery.data && dayQuery.error) || (!plan.symptoms && plan.error) || null;
   const night = dayQuery.data?.wearable_nights[0] ?? null;
   const summary = night ? watchSummary(night) : null;
   const answered = answeredSeverities(dayQuery.data);
   const remaining = (plan.symptoms ?? []).filter((symptom) => answered[symptom.code] === undefined).length;
-  const isDone = isToday && (plan.symptoms?.length ?? 0) > 0 && remaining === 0;
+  // An explicit ?date= comes from "Change this day", so it always opens the questions.
+  const isEditing = params.date !== undefined;
+  const isDone = isToday && !isEditing && (plan.symptoms?.length ?? 0) > 0 && remaining === 0;
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.scroll} contentInsetAdjustmentBehavior="never">
@@ -68,20 +67,19 @@ export default function TodayScreen() {
             <PrimaryButton label="Try again" onPress={() => Promise.all([dayQuery.refetch(), plan.refetch()])} />
           </View>
         ) : dayQuery.data && plan.symptoms ? (
-          isDone && !editing ? (
-            <CheckInDoneCard symptoms={plan.symptoms} answered={answered} onEdit={(code) => setEditing({ code })} />
+          isDone ? (
+            <CheckInDoneCard day={day} />
           ) : (
             <CheckInCard
-              // Remount when the saved day changes (e.g. chat added entries) so the draft starts from it.
-              key={`${day}:${JSON.stringify(answered)}`}
+              // Not keyed on answers: the refetch after a save must not reset the card mid-save.
+              key={day}
               patientId={patientId}
               day={day}
               isToday={isToday}
               symptoms={plan.symptoms}
               answered={answered}
               night={night}
-              startCode={editing?.code ?? null}
-              onSaved={() => setEditing(null)}
+              onSaved={() => router.setParams({ date: undefined })}
             />
           )
         ) : (
@@ -90,7 +88,7 @@ export default function TodayScreen() {
       </SafeAreaView>
 
       <View style={styles.body}>
-        {!isToday && (
+        {isEditing && (
           <Pressable
             onPress={() => router.setParams({ date: undefined })}
             accessibilityRole="button"

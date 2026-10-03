@@ -16,7 +16,7 @@ const SYMPTOMS = [
   { code: 'night_sweats', label: 'Night sweats' },
 ];
 
-function renderCard(answered: Record<string, number> = {}, symptoms = SYMPTOMS, startCode: string | null = null) {
+function renderCard(answered: Record<string, number> = {}, symptoms = SYMPTOMS) {
   return render(
     <CheckInCard
       patientId="p1"
@@ -25,7 +25,6 @@ function renderCard(answered: Record<string, number> = {}, symptoms = SYMPTOMS, 
       symptoms={symptoms}
       answered={answered}
       night={null}
-      startCode={startCode}
     />,
   );
 }
@@ -65,10 +64,11 @@ describe('CheckInCard', () => {
     });
   });
 
-  test('editing from a chip starts at that question and omits the time stat', async () => {
-    await renderCard({ hot_flushes: 1, night_sweats: 2 }, SYMPTOMS, 'night_sweats');
-    expect(screen.getByRole('radio', { name: '2, Mild' })).toBeSelected();
+  test('editing a saved day starts at the first question and omits the time stat', async () => {
+    await renderCard({ hot_flushes: 1, night_sweats: 2 });
+    expect(screen.getByRole('radio', { name: '1, None' })).toBeSelected();
 
+    await fireEvent.press(screen.getByRole('radio', { name: '1, None' }));
     await act(async () => {
       fireEvent.press(screen.getByRole('radio', { name: '5, Severe' }));
     });
@@ -77,17 +77,25 @@ describe('CheckInCard', () => {
     expect(mockPush).toHaveBeenCalledWith({ pathname: '/checkin-done', params: { day: '2026-10-20' } });
   });
 
-  test('jumps back to a skipped question instead of saving', async () => {
-    await renderCard({}, SYMPTOMS, 'night_sweats');
-    await fireEvent.press(screen.getByRole('radio', { name: '3, Moderate' }));
+  test('saves only once when the last answer is tapped twice quickly', async () => {
+    let resolve = () => {};
+    mockMutateAsync.mockImplementation(() => new Promise<void>((done) => (resolve = done)));
+    await renderCard({ hot_flushes: 1 });
+    await fireEvent.press(screen.getByRole('radio', { name: '1, None' }));
 
-    expect(mockMutateAsync).not.toHaveBeenCalled();
-    expect(screen.getByText('How bad were your hot flushes today?')).toBeOnTheScreen();
+    await act(async () => {
+      fireEvent.press(screen.getByRole('radio', { name: '2, Mild' }));
+      fireEvent.press(screen.getByRole('radio', { name: '3, Moderate' }));
+    });
+    await act(async () => resolve());
+
+    expect(mockMutateAsync).toHaveBeenCalledTimes(1);
   });
 
   test('does not navigate when saving fails', async () => {
     mockMutateAsync.mockRejectedValue(new Error('offline'));
-    await renderCard({ hot_flushes: 1 }, SYMPTOMS, 'night_sweats');
+    await renderCard({ hot_flushes: 1 });
+    await fireEvent.press(screen.getByRole('radio', { name: '1, None' }));
     await act(async () => {
       fireEvent.press(screen.getByRole('radio', { name: '1, None' }));
     });
