@@ -6,7 +6,7 @@ Project repo for HackYeah 2026.
 
 - `apps/mobile` — Expo app (TypeScript, Expo Router). Uses pnpm.
 - `apps/web` — Next.js landing page (TypeScript, Tailwind, App Router). Uses npm.
-- `supabase` — not set up yet. Supabase CLI install is blocked locally (Xcode Command Line Tools need updating to 27.0). See [Using Supabase with Expo](https://docs.expo.dev/guides/using-supabase/) for setup once unblocked.
+- `supabase` — Supabase local dev config (`supabase init`). Backend for both apps.
 
 ## Getting started
 
@@ -25,3 +25,13 @@ cd apps/web
 npm install
 npm run dev
 ```
+
+### Supabase
+
+```sh
+cd supabase
+supabase start   # requires Docker running
+supabase status  # prints local API URL + anon key
+```
+
+A `supabase` MCP server is configured in `.mcp.json` (project-scoped) so Claude Code can manage the hosted Supabase project directly — run `/mcp` to authorize it.
