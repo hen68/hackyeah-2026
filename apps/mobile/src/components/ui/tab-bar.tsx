@@ -19,6 +19,8 @@ const PARENT_TAB: Record<string, string> = { 'day/[date]': 'calendar' };
 const ICON_SIZE = 28;
 const TAB_MIN_HEIGHT = 56;
 const MIN_BOTTOM_PADDING = 20;
+/** Labels are already 16px; cap Dynamic Type so they don't clip the bar. */
+const LABEL_MAX_SCALE = 1.3;
 
 /** Bottom nav from the artboards: white bar, 28px icons, 16px labels, accent when active. */
 export function TabBar({ state, navigation }: BottomTabBarProps) {
@@ -51,7 +53,9 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
             accessibilityState={{ selected: isActive }}
             style={styles.tab}>
             <Icon name={tab.icon} size={ICON_SIZE} color={color} />
-            <Text style={[styles.label, { color, fontFamily: isActive ? fonts.bold : fonts.semibold }]}>
+            <Text
+              maxFontSizeMultiplier={LABEL_MAX_SCALE}
+              style={[styles.label, { color, fontFamily: isActive ? fonts.bold : fonts.semibold }]}>
               {tab.label}
             </Text>
           </Pressable>

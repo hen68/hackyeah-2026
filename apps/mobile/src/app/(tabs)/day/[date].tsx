@@ -41,7 +41,7 @@ function loggedRows(day: DayData, labelFor: (code: string) => string): LoggedRow
 
 /** Artboard DayDetail. */
 export default function DayDetailScreen() {
-  const { date = '' } = useLocalSearchParams<{ date: string }>();
+  const { date = '', from } = useLocalSearchParams<{ date: string; from?: string }>();
   const isValid = parseLocalDate(date) !== null;
   const isFuture = date > toLocalDateString();
   const dayQuery = useDay(date);
@@ -51,11 +51,12 @@ export default function DayDetailScreen() {
   const day = dayQuery.data;
   const status = dayStatus(day?.entries.map((entry) => entry.severity) ?? []);
   const night = day?.wearable_nights[0];
+  const goBack = () => (router.canGoBack() ? router.back() : router.navigate('/calendar'));
 
   return (
     <View style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.header}>
-        <BackButton label="Calendar" onPress={() => router.navigate('/calendar')} />
+        <BackButton label={from === 'calendar' ? 'Calendar' : 'Back'} onPress={goBack} />
         <View style={styles.headerText}>
           <Text accessibilityRole="header" style={styles.title}>
             {isValid ? formatLongDate(date) : 'Day not found'}
