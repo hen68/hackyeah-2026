@@ -28,10 +28,12 @@ npm run dev
 
 ### Supabase
 
+Hosted project: `hackyeah2026` (org `hackyeah`, eu-west-1). Both apps read `*_SUPABASE_URL` / `*_SUPABASE_PUBLISHABLE_KEY` from their own `.env.local` (gitignored, not committed) — ask a teammate for the values or pull them via the `supabase` MCP server.
+
 ```sh
 cd supabase
-supabase start   # requires Docker running
+supabase start   # local Postgres stack, requires Docker running
 supabase status  # prints local API URL + anon key
 ```
 
-A `supabase` MCP server is configured in `.mcp.json` (project-scoped) so Claude Code can manage the hosted Supabase project directly — run `/mcp` to authorize it.
+A `supabase` MCP server is configured in `.mcp.json` (project-scoped) so Claude Code can manage the hosted project directly (tables, migrations, branches) — run `/mcp` to authorize it.
