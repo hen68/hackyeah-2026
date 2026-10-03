@@ -42,6 +42,24 @@ describe('auth service', () => {
     });
   });
 
+  test('sign-in hides whether the email has an account', async () => {
+    const { client, service } = setup();
+    client.auth.signInWithOtp.mockResolvedValueOnce({
+      data: {},
+      error: new AuthApiError('Signups not allowed for otp', 422, 'otp_disabled'),
+    });
+
+    await expect(service.requestSignInCode('nobody@example.com')).resolves.toBeUndefined();
+  });
+
+  test('sign-in still surfaces other errors such as rate limits', async () => {
+    const { client, service } = setup();
+    const limited = new AuthApiError('slow down', 429, 'over_email_send_rate_limit');
+    client.auth.signInWithOtp.mockResolvedValueOnce({ data: {}, error: limited });
+
+    await expect(service.requestSignInCode('anna@example.com')).rejects.toBe(limited);
+  });
+
   test('sign-in verifies the code as an email OTP', async () => {
     const { client, service } = setup();
 

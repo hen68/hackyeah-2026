@@ -4,6 +4,9 @@ import type { Database } from '@/lib/database.types';
 
 type Client = Pick<SupabaseClient<Database>, 'auth'>;
 
+/** Errors meaning "no account for this email"; hidden so the screen can't be used to probe emails. */
+const UNKNOWN_ACCOUNT_CODES = new Set(['otp_disabled', 'signup_disabled', 'user_not_found']);
+
 /** Auth flows from plan Step 5b. Each throws the Supabase error so callers can map it. */
 export function createAuthService(client: Client) {
   return {
@@ -13,13 +16,16 @@ export function createAuthService(client: Client) {
       if (error) throw error;
     },
 
-    /** "I already have an account": sends a code, never creates a new user. */
+    /**
+     * "I already have an account": sends a code, never creates a new user.
+     * Resolves for unknown emails too; the wrong-code error on verify covers that case.
+     */
     async requestSignInCode(email: string): Promise<void> {
       const { error } = await client.auth.signInWithOtp({
         email: email.trim(),
         options: { shouldCreateUser: false },
       });
-      if (error) throw error;
+      if (error && !(error.code && UNKNOWN_ACCOUNT_CODES.has(error.code))) throw error;
     },
 
     async verifySignInCode(email: string, token: string): Promise<void> {

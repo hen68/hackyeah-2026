@@ -17,8 +17,8 @@ describe('resolveEntryRoute', () => {
     expect(resolveEntryRoute(session, undefined)).toBe('loading');
   });
 
-  test('sends users without a profile row to onboarding', () => {
-    expect(resolveEntryRoute(session, null)).toBe('onboarding');
+  test('treats a missing profile row as an error (clients cannot create one)', () => {
+    expect(resolveEntryRoute(session, null)).toBe('error');
   });
 
   test('sends users who have not finished onboarding to onboarding', () => {

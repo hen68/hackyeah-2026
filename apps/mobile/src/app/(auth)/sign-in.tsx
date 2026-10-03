@@ -69,7 +69,7 @@ export default function SignInScreen() {
         <Text style={styles.lead}>
           {isEmailStage
             ? "Enter the email you saved your account with. We'll send you a code."
-            : `We sent a code to ${email.trim()}. Enter it below.`}
+            : `If ${email.trim()} has an account, we sent it a code. Enter it below.`}
         </Text>
 
         <View style={styles.field}>

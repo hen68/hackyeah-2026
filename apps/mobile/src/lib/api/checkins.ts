@@ -42,7 +42,9 @@ export async function saveCheckin({ patientId, day, note, entries }: SaveCheckin
     entry.symptomCode ? [{ checkin_id: checkin.id, symptom_code: entry.symptomCode, severity: entry.severity }] : [],
   );
   const customRows = entries.flatMap((entry) =>
-    entry.customLabel ? [{ checkin_id: checkin.id, custom_label: entry.customLabel, severity: entry.severity }] : [],
+    entry.customLabel?.trim()
+      ? [{ checkin_id: checkin.id, custom_label: entry.customLabel.trim(), severity: entry.severity }]
+      : [],
   );
 
   if (catalogRows.length > 0) {

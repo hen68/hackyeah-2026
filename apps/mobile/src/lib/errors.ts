@@ -1,4 +1,9 @@
-import { FunctionsFetchError, FunctionsHttpError, isAuthError } from '@supabase/supabase-js';
+import {
+  FunctionsFetchError,
+  FunctionsHttpError,
+  isAuthError,
+  isAuthRetryableFetchError,
+} from '@supabase/supabase-js';
 
 const HTTP_TOO_MANY_REQUESTS = 429;
 
@@ -49,6 +54,7 @@ function isPostgrestLike(error: unknown): error is PostgrestLike {
 function isNetworkError(error: unknown): boolean {
   return (
     error instanceof FunctionsFetchError ||
+    isAuthRetryableFetchError(error) ||
     (error instanceof TypeError && /network request failed|failed to fetch/i.test(error.message))
   );
 }

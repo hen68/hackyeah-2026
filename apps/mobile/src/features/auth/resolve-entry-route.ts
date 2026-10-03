@@ -2,7 +2,7 @@ import type { Session } from '@supabase/supabase-js';
 
 import type { Profile } from '@/lib/api/profile';
 
-export type EntryRoute = 'loading' | 'auth' | 'onboarding' | 'tabs';
+export type EntryRoute = 'loading' | 'error' | 'auth' | 'onboarding' | 'tabs';
 
 /**
  * Decides which route group the user may see.
@@ -15,7 +15,8 @@ export function resolveEntryRoute(
   if (session === undefined) return 'loading';
   if (session === null) return 'auth';
   if (profile === undefined) return 'loading';
-  // A missing profile row means onboarding never happened (the signup trigger creates it).
-  if (profile === null || profile.onboarding_completed_at === null) return 'onboarding';
+  // The signup trigger always creates the row and clients can't insert one, so its absence is an error.
+  if (profile === null) return 'error';
+  if (profile.onboarding_completed_at === null) return 'onboarding';
   return 'tabs';
 }

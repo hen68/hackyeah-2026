@@ -1,4 +1,9 @@
-import { AuthApiError, FunctionsFetchError, FunctionsHttpError } from '@supabase/supabase-js';
+import {
+  AuthApiError,
+  AuthRetryableFetchError,
+  FunctionsFetchError,
+  FunctionsHttpError,
+} from '@supabase/supabase-js';
 
 import { ERROR_MESSAGES, toUserMessage } from '@/lib/errors';
 
@@ -29,6 +34,7 @@ describe('toUserMessage', () => {
   test('maps network failures to the offline message', () => {
     expect(toUserMessage(new FunctionsFetchError(new Error('down')))).toBe(ERROR_MESSAGES.offline);
     expect(toUserMessage(new TypeError('Network request failed'))).toBe(ERROR_MESSAGES.offline);
+    expect(toUserMessage(new AuthRetryableFetchError('Failed to fetch', 0))).toBe(ERROR_MESSAGES.offline);
   });
 
   test('maps PostgREST error codes', () => {
