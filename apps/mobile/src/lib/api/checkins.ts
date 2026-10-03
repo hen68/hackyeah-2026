@@ -1,11 +1,16 @@
 import { z } from 'zod';
 
+import { parseLocalDate, toLocalDateString } from '@/lib/dates';
 import { supabase } from '@/lib/supabase';
 
 /** Matches the `checkins_note_check` constraint. */
 export const NOTE_MAX_LENGTH = 2000;
 
-const daySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+/** A real patient-local date that isn't in the future. */
+const daySchema = z
+  .string()
+  .refine((day) => parseLocalDate(day) !== null, 'Invalid date')
+  .refine((day) => day <= toLocalDateString(), 'Future dates cannot be logged');
 
 const entryInputSchema = z.object({
   patientId: z.string().min(1),

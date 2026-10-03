@@ -34,7 +34,8 @@ export default function TodayScreen() {
 
   const dayQuery = useDay(day);
   const plan = usePlanSymptoms(patientId);
-  const error = dayQuery.error ?? plan.error;
+  // Background refetch errors keep the card (and the unsaved note) on screen.
+  const error = (!dayQuery.data && dayQuery.error) || (!plan.symptoms && plan.error) || null;
   const night = dayQuery.data?.wearable_nights[0] ?? null;
   const summary = night ? watchSummary(night) : null;
 

@@ -37,10 +37,13 @@ export function CheckInCard({ patientId, day, isToday, symptoms, answered, initi
   const open = symptoms.find((symptom) => symptom.code === openCode);
   const openValue = open ? answered[open.code] : undefined;
   const hint = open ? watchHint(open.code, night) : null;
+  const question = open ? questionFor(open.code, open.label) : '';
 
   const handlePick = (severity: Severity) => {
     if (!open) return;
-    saveEntry.mutate({ symptomCode: open.code, severity });
+    const failedCode = open.code;
+    // Re-open the question on failure so it can be answered again.
+    saveEntry.mutate({ symptomCode: failedCode, severity }, { onError: () => setOpenCode(failedCode) });
     setOpenCode(nextUnanswered(codes, { ...answered, [open.code]: severity }, open.code));
   };
 
@@ -63,12 +66,12 @@ export function CheckInCard({ patientId, day, isToday, symptoms, answered, initi
 
       {open && (
         <Card tone="soft">
-          <Text style={styles.question}>{questionFor(open.code, open.label)}</Text>
+          <Text style={styles.question}>{question}</Text>
           {hint && <Text style={styles.hint}>{hint}</Text>}
           <SeverityPicker
             value={openValue !== undefined && isSeverity(openValue) ? openValue : null}
             onChange={handlePick}
-            accessibilityLabel={open.label}
+            accessibilityLabel={question}
           />
         </Card>
       )}
@@ -95,9 +98,7 @@ export function CheckInCard({ patientId, day, isToday, symptoms, answered, initi
       )}
 
       <View style={styles.noteGroup}>
-        <Text nativeID="day-note-label" style={styles.noteLabel}>
-          Add a note (optional)
-        </Text>
+        <Text style={styles.noteLabel}>Add a note (optional)</Text>
         <TextInput
           value={note}
           onChangeText={setNote}
@@ -106,7 +107,6 @@ export function CheckInCard({ patientId, day, isToday, symptoms, answered, initi
           placeholder="Anything you want to remember about today…"
           placeholderTextColor={colors.textMuted}
           accessibilityLabel="Add a note (optional)"
-          accessibilityLabelledBy="day-note-label"
           style={styles.note}
         />
         {isNoteError && (
