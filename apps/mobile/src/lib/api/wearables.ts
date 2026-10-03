@@ -18,6 +18,15 @@ export async function connectWearable(patientId: string, provider: string): Prom
   if (error) throw error;
 }
 
+export async function disconnectWearable(patientId: string, provider: string): Promise<void> {
+  const { error } = await supabase
+    .from('wearable_connections')
+    .delete()
+    .eq('patient_id', patientId)
+    .eq('provider', provider);
+  if (error) throw error;
+}
+
 /** Nights for one patient-local date (YYYY-MM-DD), one row per provider. */
 export async function getWearableNights(patientId: string, nightOf: string): Promise<WearableNight[]> {
   const { data, error } = await supabase
