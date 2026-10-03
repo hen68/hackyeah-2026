@@ -1,23 +1,15 @@
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { Tabs } from 'expo-router/js-tabs';
 
-import { colors } from '@/theme/tokens';
+import { TabBar } from '@/components/ui/tab-bar';
 
-// NativeTabs icons must be SF Symbols (iOS) / Material symbols (Android), not SVG components.
+// JS tabs with a custom bar: the native tab bar can't match the artboard's large icons and labels.
 export default function TabsLayout() {
   return (
-    <NativeTabs tintColor={colors.accent} backgroundColor={colors.surface}>
-      <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf={{ default: 'house', selected: 'house.fill' }} md="home" />
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="calendar">
-        <NativeTabs.Trigger.Label>Calendar</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="calendar" md="calendar_month" />
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="profile">
-        <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf={{ default: 'person', selected: 'person.fill' }} md="person" />
-      </NativeTabs.Trigger>
-    </NativeTabs>
+    <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: false }} backBehavior="history">
+      <Tabs.Screen name="index" />
+      <Tabs.Screen name="calendar" />
+      <Tabs.Screen name="profile" />
+      <Tabs.Screen name="day/[date]" options={{ href: null }} />
+    </Tabs>
   );
 }
