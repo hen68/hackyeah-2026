@@ -57,6 +57,8 @@ export default function ChatScreen() {
   const message = draft.trim();
   // Sending before history loads would overwrite the cached thread with just the new bubble.
   const canSend = message.length > 0 && !send.isPending && thread.isSuccess;
+  // The typing indicator gives way to the reply bubble once its first words arrive.
+  const isStreaming = thread.data?.some((item) => item.status === 'streaming') ?? false;
 
   const handleSend = () => {
     if (!canSend) return;
@@ -109,7 +111,7 @@ export default function ChatScreen() {
                   onChangeDay={(date) => router.push(`/day/${date}`)}
                 />
               ))}
-              {send.isPending && <TypingBubble />}
+              {send.isPending && !isStreaming && <TypingBubble />}
             </>
           )}
         </ScrollView>
