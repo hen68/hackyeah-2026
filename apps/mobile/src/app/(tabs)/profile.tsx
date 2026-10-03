@@ -1,14 +1,17 @@
 import { useMutation } from '@tanstack/react-query';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Icon } from '@/components/ui/icon';
 import { useAuth } from '@/features/auth/auth-provider';
 import { WATCH_OPTIONS } from '@/features/onboarding/answers';
 import { useToggleWearable, useWearableConnections } from '@/features/profile/hooks';
 import { formatExpiry, summarizeProfile } from '@/features/profile/profile-summary';
 import { toUserMessage } from '@/lib/errors';
 import { createLinkCode } from '@/lib/api/link-codes';
+import { getMyData } from '@/lib/api/my-data';
 import { colors, radii, spacing, type } from '@/theme/tokens';
 
 const AVATAR_SIZE = 72;
@@ -16,7 +19,7 @@ const ROW_HEIGHT = 64;
 const SIGN_OUT_TEXT = '#B03A5B';
 const COUNTDOWN_TICK_MS = 60_000;
 
-/** Artboard Profile (core items: header, watch, my doctor, sign out). */
+/** Artboard Profile: header, watch, my doctor, more (data, language, privacy, help), sign out. */
 export default function ProfileScreen() {
   const { session, profile } = useAuth();
   // Only rendered inside the tabs gate, which requires a session.
@@ -46,6 +49,7 @@ export default function ProfileScreen() {
 
         <WatchSection patientId={patientId} />
         <DoctorSection />
+        <MoreSection patientId={patientId} />
         <SignOutButton />
       </ScrollView>
     </View>
@@ -155,6 +159,59 @@ function DoctorSection() {
   );
 }
 
+function MoreSection({ patientId }: { patientId: string }) {
+  const download = useMutation({
+    mutationFn: async () => {
+      const data = await getMyData(patientId);
+      await Share.share({ title: 'My Digna data', message: JSON.stringify(data, null, 2) });
+    },
+  });
+
+  return (
+    <View style={styles.section}>
+      <Text accessibilityRole="header" style={styles.sectionTitle}>
+        More
+      </Text>
+      <View style={styles.list}>
+        <Pressable
+          onPress={() => download.mutate()}
+          disabled={download.isPending}
+          accessibilityRole="button"
+          accessibilityHint="Shares a copy of everything Digna keeps about you"
+          accessibilityState={{ disabled: download.isPending, busy: download.isPending }}
+          style={styles.listRow}>
+          <Text style={styles.rowLabel}>{download.isPending ? 'Preparing your data…' : 'Download my data'}</Text>
+          <Icon name="chevronRight" />
+        </Pressable>
+        <View accessible accessibilityLabel="Language: English" style={[styles.listRow, styles.listDivider]}>
+          <Text style={styles.rowLabel}>Language</Text>
+          <Text style={styles.muted}>English</Text>
+        </View>
+        <LinkRow label="Privacy" onPress={() => router.push('/privacy')} />
+        <LinkRow label="Help" onPress={() => router.push('/help')} />
+      </View>
+      {download.error && (
+        <Text accessibilityRole="alert" style={styles.error}>
+          {toUserMessage(download.error)}
+        </Text>
+      )}
+    </View>
+  );
+}
+
+function LinkRow({ label, onPress }: { label: string; onPress: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="link"
+      accessibilityLabel={label}
+      style={[styles.listRow, styles.listDivider]}>
+      <Text style={styles.rowLabel}>{label}</Text>
+      <Icon name="chevronRight" />
+    </Pressable>
+  );
+}
+
 function SignOutButton() {
   const { auth } = useAuth();
   const signOut = useMutation({ mutationFn: () => auth.signOut() });
@@ -227,6 +284,15 @@ const styles = StyleSheet.create({
   rowLabel: { ...type.option, fontSize: 20, color: colors.text, flexShrink: 1 },
   connected: { ...type.label, fontFamily: type.heading.fontFamily, color: colors.tealDark },
   connect: { ...type.label, color: colors.accent },
+  list: { backgroundColor: colors.surface, borderRadius: radii.card, paddingHorizontal: spacing.lg },
+  listRow: {
+    minHeight: ROW_HEIGHT,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  listDivider: { borderTopWidth: 1, borderTopColor: colors.divider },
   code: { ...type.title, fontSize: 36, lineHeight: 42, letterSpacing: 4, color: colors.text },
   outlineButton: {
     minHeight: ROW_HEIGHT,
