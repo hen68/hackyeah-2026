@@ -15,6 +15,8 @@ const HALO_SIZE = 176;
 const GARDEN_COLUMNS = 8;
 const GARDEN_FLOWER = 26;
 const GARDEN_DOT = 10;
+/** Soft pink disc behind each bloomed day so check-ins stand out from the empty plots. */
+const BLOOM_SIZE = 34;
 
 function goHome() {
   if (router.canGoBack()) router.back();
@@ -80,7 +82,13 @@ export default function CheckInDoneScreen() {
             <View style={styles.garden}>
               {garden.flowers.map((isBloomed, index) => (
                 <View key={index} style={styles.plot}>
-                  {isBloomed ? <Flower size={GARDEN_FLOWER} /> : <View style={styles.seed} />}
+                  {isBloomed ? (
+                    <View style={styles.bloom}>
+                      <Flower size={GARDEN_FLOWER} />
+                    </View>
+                  ) : (
+                    <View style={styles.seed} />
+                  )}
                 </View>
               ))}
             </View>
@@ -133,7 +141,15 @@ const styles = StyleSheet.create({
   gardenTitle: { ...type.heading, fontSize: 22, lineHeight: 28, color: colors.text, flexShrink: 1 },
   gardenCount: { ...type.label, color: colors.textMuted, paddingTop: 3 },
   garden: { flexDirection: 'row', flexWrap: 'wrap', rowGap: spacing.xs },
-  plot: { width: `${100 / GARDEN_COLUMNS}%`, height: GARDEN_FLOWER + 4, alignItems: 'center', justifyContent: 'center' },
+  plot: { width: `${100 / GARDEN_COLUMNS}%`, height: BLOOM_SIZE, alignItems: 'center', justifyContent: 'center' },
+  bloom: {
+    width: BLOOM_SIZE,
+    height: BLOOM_SIZE,
+    borderRadius: radii.pill,
+    backgroundColor: colors.blush,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   seed: { width: GARDEN_DOT, height: GARDEN_DOT, borderRadius: radii.pill, backgroundColor: colors.divider },
   doctor: {
     flexDirection: 'row',

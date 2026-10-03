@@ -53,7 +53,7 @@ export const sizes = {
   optionHeight: 68,
   severityTileHeight: 56,
   chipHeight: 48,
-  severityDot: 38,
+  severityDot: 52,
   checkBadge: 28,
   progressBarHeight: 6,
 } as const;

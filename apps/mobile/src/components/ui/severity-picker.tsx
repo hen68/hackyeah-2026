@@ -36,14 +36,18 @@ export function SeverityPicker({ value, onChange, accessibilityLabel }: Severity
               accessibilityRole="radio"
               accessibilityLabel={`${severity}, ${severityLabels[severity]}`}
               accessibilityState={{ selected: isSelected }}
-              style={({ pressed }) => [
-                styles.tile,
-                isSelected ? styles.selected : styles.unselected,
-                pressed && styles.pressed,
-              ]}>
-              <View style={[styles.dot, { backgroundColor: severityColors[severity] }]}>
-                <Text style={[styles.dotText, { color: severityTextColors[severity] }]}>{severity}</Text>
-              </View>
+              style={styles.tile}>
+              {({ pressed }) => (
+                <View
+                  style={[
+                    styles.dot,
+                    { backgroundColor: severityColors[severity] },
+                    isSelected && styles.selected,
+                    pressed && styles.pressed,
+                  ]}>
+                  <Text style={[styles.dotText, { color: severityTextColors[severity] }]}>{severity}</Text>
+                </View>
+              )}
             </Pressable>
           );
         })}
@@ -59,21 +63,10 @@ export function SeverityPicker({ value, onChange, accessibilityLabel }: Severity
 const styles = StyleSheet.create({
   group: { gap: spacing.xs },
   row: { flexDirection: 'row', gap: spacing.xs },
-  tile: {
-    flex: 1,
-    height: sizes.severityTileHeight,
-    borderRadius: radii.optionSmall,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  tile: { flex: 1, height: sizes.severityTileHeight, alignItems: 'center', justifyContent: 'center' },
+  // The answer you already gave (e.g. when changing a day) keeps a dark ring.
   selected: { borderWidth: 3, borderColor: colors.selectedOutline },
-  unselected: { borderWidth: 2, borderColor: colors.border },
-  pressed: {
-    borderColor: colors.pressedOutline,
-    backgroundColor: colors.softPinkStrong,
-    transform: [{ scale: PRESSED_SCALE }],
-  },
+  pressed: { borderWidth: 3, borderColor: colors.pressedOutline, transform: [{ scale: PRESSED_SCALE }] },
   dot: {
     width: sizes.severityDot,
     height: sizes.severityDot,
