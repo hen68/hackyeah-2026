@@ -21,10 +21,10 @@ const TAB_MIN_HEIGHT = 56;
 const MIN_BOTTOM_PADDING = 8;
 /** The home indicator sits low in the inset, so labels can use part of it. */
 const BOTTOM_INSET_TRIM = 18;
-/** Labels are already 16px; cap Dynamic Type so they don't clip the bar. */
+/** Labels are already 14px; cap Dynamic Type so they don't clip the bar. */
 const LABEL_MAX_SCALE = 1.3;
 
-/** Bottom nav from the artboards: white bar, 28px icons, 16px labels, accent when active. */
+/** Bottom nav from the artboards: white bar, 28px icons, 14px labels, accent when active. */
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const focusedName = state.routes[state.index]?.name ?? 'index';
@@ -77,5 +77,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
   },
   tab: { flex: 1, minHeight: TAB_MIN_HEIGHT, alignItems: 'center', justifyContent: 'center', gap: spacing.xxs },
-  label: { fontSize: 16, lineHeight: 20 },
+  label: { fontSize: 14, lineHeight: 18 },
 });
