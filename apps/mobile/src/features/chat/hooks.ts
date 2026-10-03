@@ -98,7 +98,7 @@ export function useSendChat(patientId: string) {
     mutationFn: (vars: SendVars) =>
       streamChatMessage({
         message: vars.message,
-        inputMode: 'text',
+        inputMode: vars.inputMode ?? 'text',
         localDate: vars.localDate,
         onDelta: (text) => update((items) => appendText(items, vars, text)),
       }),

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -20,6 +20,8 @@ import { useAuth } from '@/features/auth/auth-provider';
 import { ChatBubble, TypingBubble } from '@/features/chat/chat-bubble';
 import { useChatThread, useSendChat } from '@/features/chat/hooks';
 import type { ChatItem } from '@/features/chat/thread';
+import { useVoiceInput } from '@/features/chat/use-voice-input';
+import { VoiceButton } from '@/features/chat/voice-button';
 import { useSymptomCatalog } from '@/features/today/hooks';
 import { toLocalDateString } from '@/lib/dates';
 import { toUserMessage } from '@/lib/errors';
@@ -29,20 +31,17 @@ const MAX_MESSAGE_LENGTH = 4000;
 const AVATAR_SIZE = 48;
 const AVATAR_ICON = 28;
 const AVATAR_STROKE = 1.6;
-const MIC_SIZE = 64;
-const MIC_ICON = 30;
 const SEND_SIZE = 52;
 const SEND_ICON = 22;
 const INPUT_HEIGHT = 52;
 const INPUT_MAX_HEIGHT = 140;
 const WELCOME = 'Hi, I’m Digna. How are you feeling today?';
 const DISCLAIMER = 'Digna doesn’t give medical advice. Talk to your doctor about treatment.';
-const VOICE_SOON = 'Voice is coming soon. For now, please type.';
 
 let localIdCounter = 0;
 const nextLocalId = () => `local-${Date.now()}-${(localIdCounter += 1)}`;
 
-/** Artboard Chat. Text only for now; voice arrives in Step 11. */
+/** Artboard Chat. Type or tap the mic to dictate; dictated drafts are sent as voice. */
 export default function ChatScreen() {
   const { session } = useAuth();
   const patientId = session?.user.id ?? '';
@@ -50,8 +49,8 @@ export default function ChatScreen() {
   const send = useSendChat(patientId);
   const catalog = useSymptomCatalog();
   const scrollRef = useRef<ScrollView>(null);
-  const [draft, setDraft] = useState('');
-  const [isVoiceHintShown, setVoiceHintShown] = useState(false);
+  const voice = useVoiceInput();
+  const { draft, setDraft } = voice;
 
   const labelFor = (code: string) => catalog.data?.find((item) => item.code === code)?.label ?? code;
   const message = draft.trim();
@@ -62,11 +61,11 @@ export default function ChatScreen() {
 
   const handleSend = () => {
     if (!canSend) return;
-    send.mutate({ id: nextLocalId(), message, localDate: toLocalDateString() });
+    send.mutate({ id: nextLocalId(), message, localDate: toLocalDateString(), inputMode: voice.inputMode });
     setDraft('');
   };
   const handleRetry = (item: ChatItem) =>
-    send.mutate({ id: item.id, message: item.content, localDate: item.localDate });
+    send.mutate({ id: item.id, message: item.content, localDate: item.localDate, inputMode: item.inputMode });
 
   return (
     <View style={styles.screen}>
@@ -119,16 +118,9 @@ export default function ChatScreen() {
         <SafeAreaView edges={['bottom']} style={styles.footer}>
           <Text style={styles.disclaimer}>{DISCLAIMER}</Text>
           <View style={styles.voiceRow}>
-            <Pressable
-              onPress={() => setVoiceHintShown(true)}
-              accessibilityRole="button"
-              accessibilityLabel="Tap to talk"
-              accessibilityHint="Voice is coming soon"
-              style={styles.mic}>
-              <Icon name="mic" size={MIC_ICON} color={colors.textOnAccent} />
-            </Pressable>
+            <VoiceButton status={voice.status} level={voice.level} label={voice.label} onPress={voice.toggle} />
             <Text accessibilityLiveRegion="polite" style={styles.voiceLabel}>
-              {isVoiceHintShown ? VOICE_SOON : 'Tap to talk'}
+              {voice.label}
             </Text>
           </View>
           <View style={styles.inputBar}>
@@ -194,15 +186,7 @@ const styles = StyleSheet.create({
   },
   footer: { paddingHorizontal: spacing.lg, paddingTop: spacing.xs, paddingBottom: spacing.md, gap: spacing.sm },
   disclaimer: { ...type.chip, color: colors.textMuted, textAlign: 'center' },
-  voiceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
-  mic: {
-    width: MIC_SIZE,
-    height: MIC_SIZE,
-    borderRadius: MIC_SIZE / 2,
-    backgroundColor: colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  voiceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.lg },
   voiceLabel: { ...type.label, color: colors.text, flexShrink: 1 },
   inputBar: {
     flexDirection: 'row',
