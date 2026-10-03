@@ -6,6 +6,7 @@ import {
   SEVERITY_VALUES,
   severityColors,
   severityLabels,
+  severityTextColors,
   sizes,
   spacing,
   type,
@@ -35,7 +36,7 @@ export function SeverityPicker({ value, onChange, accessibilityLabel }: Severity
             accessibilityState={{ selected: isSelected }}
             style={[styles.row, isSelected ? styles.selected : styles.unselected]}>
             <View style={[styles.dot, { backgroundColor: severityColors[severity] }]}>
-              <Text style={styles.dotText}>{severity}</Text>
+              <Text style={[styles.dotText, { color: severityTextColors[severity] }]}>{severity}</Text>
             </View>
             <Text style={styles.label}>{label}</Text>
           </Pressable>
@@ -56,7 +57,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
   },
-  selected: { borderWidth: 3, borderColor: colors.selectedOutline },
+  // 1px less padding offsets the thicker border so content doesn't shift on select.
+  selected: { borderWidth: 3, borderColor: colors.selectedOutline, paddingHorizontal: spacing.md - 1 },
   unselected: { borderWidth: 2, borderColor: colors.border },
   dot: {
     width: sizes.severityDot,

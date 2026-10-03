@@ -115,6 +115,15 @@ export const severityColors: Record<Severity, string> = {
   5: '#E0245E',
 };
 
+/** Number colour on each severity dot; dark text keeps 4.5:1 contrast on the lighter dots. */
+export const severityTextColors: Record<Severity, string> = {
+  1: colors.text,
+  2: colors.text,
+  3: colors.text,
+  4: colors.text,
+  5: colors.textOnAccent,
+};
+
 export type DayStatus = 'good' | 'okay' | 'hard' | 'none';
 
 export const dayStatusColors: Record<DayStatus, string> = {
