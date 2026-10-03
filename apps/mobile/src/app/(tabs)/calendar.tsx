@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Flower } from '@/components/ui/flower';
 import { Icon } from '@/components/ui/icon';
 import { PrimaryButton } from '@/components/ui/primary-button';
 import {
@@ -25,12 +26,9 @@ const CELL_HEIGHT = 56;
 const NAV_SIZE = 48;
 const FUTURE_TEXT = '#9AA0A6';
 const LEGEND_SWATCH = 20;
-const TILE_STATUSES = ['hard', 'okay', 'good'] as const;
-const LEGEND = [
-  { label: 'Hard day', color: dayStatusColors.hard },
-  { label: 'Okay day', color: dayStatusColors.okay },
-  { label: 'Good day', color: dayStatusColors.good },
-] as const;
+const CELL_FLOWER = 16;
+/** Lightest first: the month reads as a garden, never as a row of warnings. */
+const TILE_STATUSES = ['good', 'okay', 'hard'] as const;
 
 function currentMonth(): MonthRef {
   const now = new Date();
@@ -113,15 +111,23 @@ export default function CalendarScreen() {
           )}
 
           <View style={styles.legend}>
-            {LEGEND.map((item) => (
-              <View key={item.label} style={styles.legendItem}>
-                <View style={[styles.swatch, { backgroundColor: item.color }]} />
-                <Text style={styles.legendLabel}>{item.label}</Text>
+            {TILE_STATUSES.map((status) => (
+              <View key={status} style={styles.legendItem}>
+                <View style={[styles.swatch, { backgroundColor: dayStatusColors[status] }]} />
+                <Text style={styles.legendLabel}>{DAY_STATUS_LABELS[status]}</Text>
               </View>
             ))}
             <View style={styles.legendItem}>
+              <Flower size={CELL_FLOWER + 4} />
+              <Text style={styles.legendLabel}>Checked in</Text>
+            </View>
+            <View style={styles.legendItem}>
               <View style={[styles.swatch, styles.swatchOutline]} />
-              <Text style={styles.legendLabel}>● Bleeding</Text>
+              <Text style={styles.legendLabel}>Not logged</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <Text style={styles.bleeding}>●</Text>
+              <Text style={styles.legendLabel}>Bleeding</Text>
             </View>
           </View>
           <Text style={styles.hint}>Tap a day to see everything from that day.</Text>
@@ -139,7 +145,7 @@ function SummaryCard({ title, days, today }: { title: string; days: readonly Cal
         <Text accessibilityRole="header" style={styles.summaryTitle}>
           {title}
         </Text>
-        <Text style={styles.muted}>{`You logged ${summary.logged} of ${summary.elapsed} days`}</Text>
+        <Text style={styles.muted}>{`${summary.logged} of ${summary.elapsed} days in your garden`}</Text>
       </View>
       <View style={styles.tiles}>
         {TILE_STATUSES.map((status) => (
@@ -176,9 +182,10 @@ function DayCell({ date, dayNumber, monthLabel, row, today }: DayCellProps) {
   const status = row?.status ?? 'none';
   const isToday = date === today;
   const hasBleeding = row?.has_bleeding ?? false;
+  const hasCheckin = row?.has_checkin ?? false;
   const label = [
     `${dayNumber} ${monthLabel}`,
-    status === 'none' ? 'nothing logged' : DAY_STATUS_LABELS[status].toLowerCase(),
+    status !== 'none' ? DAY_STATUS_LABELS[status].toLowerCase() : hasCheckin ? 'checked in' : 'nothing logged',
     hasBleeding ? 'bleeding' : null,
     isToday ? 'today' : null,
   ]
@@ -190,9 +197,20 @@ function DayCell({ date, dayNumber, monthLabel, row, today }: DayCellProps) {
       onPress={() => router.push({ pathname: '/day/[date]', params: { date, from: 'calendar' } })}
       accessibilityRole="button"
       accessibilityLabel={label}
-      style={[styles.cell, styles.dayCell, { backgroundColor: dayStatusColors[status] }, isToday && styles.today]}>
+      style={[
+        styles.cell,
+        styles.dayCell,
+        { backgroundColor: dayStatusColors[status] },
+        !hasCheckin && styles.notLogged,
+        isToday && styles.today,
+      ]}>
       <Text style={[styles.dayNumber, isToday && styles.todayNumber]}>{dayNumber}</Text>
-      {hasBleeding && <Text style={styles.bleeding}>●</Text>}
+      {(hasCheckin || hasBleeding) && (
+        <View style={styles.marks}>
+          {hasCheckin && <Flower size={CELL_FLOWER} />}
+          {hasBleeding && <Text style={styles.bleeding}>●</Text>}
+        </View>
+      )}
     </Pressable>
   );
 }
@@ -252,8 +270,10 @@ const styles = StyleSheet.create({
   weekday: { ...type.chip, fontSize: 15, flex: 1, textAlign: 'center', color: colors.textMuted },
   cell: { flex: 1, height: CELL_HEIGHT, alignItems: 'center', justifyContent: 'center' },
   dayCell: { borderRadius: 14, borderWidth: 2, borderColor: 'transparent' },
-  today: { borderWidth: 3, borderColor: colors.selectedOutline },
-  dayNumber: { ...type.severity, color: colors.text },
+  notLogged: { borderStyle: 'dashed', borderColor: colors.border },
+  today: { borderWidth: 3, borderStyle: 'solid', borderColor: colors.selectedOutline },
+  marks: { flexDirection: 'row', alignItems: 'center', gap: 2, height: CELL_FLOWER },
+  dayNumber: { ...type.severity, lineHeight: 22, color: colors.text },
   todayNumber: { fontFamily: type.heading.fontFamily },
   future: { color: FUTURE_TEXT },
   bleeding: { fontSize: 12, lineHeight: 14, color: colors.accentPressed },

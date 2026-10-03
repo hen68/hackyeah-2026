@@ -7,7 +7,8 @@ import { PrimaryButton } from '@/components/ui/primary-button';
 import { useAuth } from '@/features/auth/auth-provider';
 import { answeredSeverities, greeting } from '@/features/today/check-in';
 import { CheckInCard } from '@/features/today/check-in-card';
-import { useDay, usePlanSymptoms } from '@/features/today/hooks';
+import { useCheckinDays, useDay, usePlanSymptoms } from '@/features/today/hooks';
+import { StreakCard } from '@/features/today/streak-card';
 import { watchSummary } from '@/features/today/watch';
 import { formatLongDate, parseLocalDate, toLocalDateString } from '@/lib/dates';
 import { toUserMessage } from '@/lib/errors';
@@ -34,10 +35,13 @@ export default function TodayScreen() {
 
   const dayQuery = useDay(day);
   const plan = usePlanSymptoms(patientId);
+  const checkinDays = useCheckinDays(patientId);
   // Background refetch errors keep the card (and the unsaved note) on screen.
   const error = (!dayQuery.data && dayQuery.error) || (!plan.symptoms && plan.error) || null;
   const night = dayQuery.data?.wearable_nights[0] ?? null;
   const summary = night ? watchSummary(night) : null;
+  const answered = answeredSeverities(dayQuery.data);
+  const remaining = (plan.symptoms ?? []).filter((symptom) => answered[symptom.code] === undefined).length;
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.scroll} contentInsetAdjustmentBehavior="never">
@@ -48,6 +52,9 @@ export default function TodayScreen() {
             {greeting(new Date().getHours(), profile?.display_name ?? null)}
           </Text>
         </View>
+        {isToday && checkinDays.data && (
+          <StreakCard checkinDays={checkinDays.data} today={today} remaining={remaining} />
+        )}
         {error ? (
           <View style={styles.status}>
             <Text accessibilityRole="alert" style={styles.errorText}>
@@ -62,7 +69,7 @@ export default function TodayScreen() {
             day={day}
             isToday={isToday}
             symptoms={plan.symptoms}
-            answered={answeredSeverities(dayQuery.data)}
+            answered={answered}
             initialNote={dayQuery.data.checkin?.note ?? ''}
             night={night}
           />
