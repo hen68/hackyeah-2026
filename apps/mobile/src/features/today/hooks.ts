@@ -16,7 +16,7 @@ export const dayKeys = {
   detail: (day: string) => ['day', day] as const,
 };
 /** Prefix for Step 9a month queries; invalidated whenever a day changes. */
-const CALENDAR_KEY = ['calendar'] as const;
+export const CALENDAR_KEY = ['calendar'] as const;
 
 /** Entry and note writes for one day run one at a time, so they land in the order they were made. */
 const checkinScope = (day: string) => ({ id: `checkin-${day}` });

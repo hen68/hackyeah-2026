@@ -1,9 +1,4 @@
-import {
-  AuthApiError,
-  AuthRetryableFetchError,
-  FunctionsFetchError,
-  FunctionsHttpError,
-} from '@supabase/supabase-js';
+import { AuthApiError, AuthRetryableFetchError, FunctionsFetchError, FunctionsHttpError } from '@supabase/supabase-js';
 
 import { ERROR_MESSAGES, toUserMessage } from '@/lib/errors';
 
@@ -31,6 +26,12 @@ describe('toUserMessage', () => {
     const error = new FunctionsHttpError(new Response(null, { status: 429 }));
 
     expect(toUserMessage(error)).toBe(ERROR_MESSAGES.chatRateLimited);
+  });
+
+  test('maps a 404 from an edge function to the chat unavailable message', () => {
+    expect(toUserMessage(new FunctionsHttpError(new Response(null, { status: 404 })))).toBe(
+      ERROR_MESSAGES.chatUnavailable,
+    );
   });
 
   test('maps other edge function failures to the generic message', () => {

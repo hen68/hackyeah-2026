@@ -1,17 +1,14 @@
-import {
-  FunctionsFetchError,
-  FunctionsHttpError,
-  isAuthError,
-  isAuthRetryableFetchError,
-} from '@supabase/supabase-js';
+import { FunctionsFetchError, FunctionsHttpError, isAuthError, isAuthRetryableFetchError } from '@supabase/supabase-js';
 
+const HTTP_NOT_FOUND = 404;
 const HTTP_TOO_MANY_REQUESTS = 429;
 
 export const ERROR_MESSAGES = {
   generic: 'Something went wrong. Please try again.',
   offline: 'No internet connection. Check your connection and try again.',
   rateLimited: 'Too many tries. Please wait a minute and try again.',
-  chatRateLimited: "You've sent a lot of messages. Please take a short break and try again.",
+  chatRateLimited: "Let's pause for a moment and continue later.",
+  chatUnavailable: "Digna can't chat right now. Please try again later.",
   emailExists: 'That email already has an account. Sign in with it instead.',
   wrongCredentials: 'That email or password is wrong. Please try again.',
   weakPassword: 'Please choose a longer password, at least 8 characters.',
@@ -69,7 +66,9 @@ export function toUserMessage(error: unknown): string {
   }
   if (error instanceof FunctionsHttpError) {
     const status = error.context instanceof Response ? error.context.status : undefined;
-    return status === HTTP_TOO_MANY_REQUESTS ? ERROR_MESSAGES.chatRateLimited : ERROR_MESSAGES.generic;
+    if (status === HTTP_TOO_MANY_REQUESTS) return ERROR_MESSAGES.chatRateLimited;
+    // The only edge function is `chat`; 404 means it isn't deployed.
+    return status === HTTP_NOT_FOUND ? ERROR_MESSAGES.chatUnavailable : ERROR_MESSAGES.generic;
   }
   if (isPostgrestLike(error)) return POSTGREST_CODE_MESSAGES[error.code] ?? ERROR_MESSAGES.generic;
   return ERROR_MESSAGES.generic;

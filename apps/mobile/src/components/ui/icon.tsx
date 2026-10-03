@@ -24,6 +24,11 @@ const ICONS = {
   thermometer: [{ kind: 'path', d: 'M10 13.5V5a2 2 0 1 1 4 0v8.5a4 4 0 1 1-4 0z' }],
   heart: [{ kind: 'path', d: 'M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z' }],
   moon: [{ kind: 'path', d: 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z' }],
+  send: [{ kind: 'path', d: 'M12 19V5M6 11l6-6 6 6' }],
+  smile: [
+    { kind: 'circle', cx: 12, cy: 12, r: 9 },
+    { kind: 'path', d: 'M8 12.5c1.2 2 2.6 3 4 3s2.8-1 4-3' },
+  ],
   profile: [
     { kind: 'circle', cx: 12, cy: 8, r: 4 },
     { kind: 'path', d: 'M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6' },
