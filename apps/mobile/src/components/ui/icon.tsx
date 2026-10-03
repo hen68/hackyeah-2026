@@ -34,6 +34,7 @@ const ICONS = {
     { kind: 'rect', x: 4, y: 5, width: 16, height: 16, rx: 3 },
     { kind: 'path', d: 'M8 3v4M16 3v4M4 10h16' },
   ],
+  document: [{ kind: 'path', d: 'M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 16h5' }],
   profile: [
     { kind: 'circle', cx: 12, cy: 8, r: 4 },
     { kind: 'path', d: 'M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6' },

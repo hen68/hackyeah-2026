@@ -9,7 +9,7 @@ const OKAY_SEVERITY = 3;
 export const DAY_STATUS_LABELS: Record<DayStatus, string> = {
   good: 'Good day',
   okay: 'Okay day',
-  hard: 'Hard day',
+  hard: 'Tougher day',
   none: 'Nothing logged',
 };
 
@@ -45,13 +45,23 @@ export function dayStatus(severities: readonly number[]): DayStatus {
   return 'hard';
 }
 
-/** First plan symptom without an answer, ignoring `skipCode` (the one just answered). */
-export function nextUnanswered(
-  planCodes: readonly string[],
-  answered: Readonly<Record<string, number>>,
-  skipCode: string | null = null,
-): string | null {
-  return planCodes.find((code) => code !== skipCode && answered[code] === undefined) ?? null;
+/** Where the form opens: the first unanswered question, or the first one when all are answered. */
+export function firstUnansweredIndex(planCodes: readonly string[], answers: Readonly<Record<string, number>>): number {
+  const index = planCodes.findIndex((code) => answers[code] === undefined);
+  return index === -1 ? 0 : index;
+}
+
+const SECONDS_PER_QUESTION = 15;
+const MS_PER_MINUTE = 60_000;
+
+/** Rough time left for `remaining` questions, never below a minute. */
+export function minutesLeft(remaining: number): number {
+  return Math.max(1, Math.ceil((remaining * SECONDS_PER_QUESTION) / 60));
+}
+
+/** Whole minutes between two timestamps, never below a minute. */
+export function minutesSpent(startedAt: number, finishedAt: number): number {
+  return Math.max(1, Math.round((finishedAt - startedAt) / MS_PER_MINUTE));
 }
 
 const MORNING_END_HOUR = 12;
@@ -82,10 +92,4 @@ export function answeredSeverities(day: DayData | undefined): Record<string, num
   return Object.fromEntries(
     (day?.entries ?? []).flatMap((entry) => (entry.symptom_code ? [[entry.symptom_code, entry.severity]] : [])),
   );
-}
-
-/** Optimistic copy of a day with one symptom (re)rated. */
-export function withEntry(day: DayData, symptomCode: string, severity: Severity): DayData {
-  const others = day.entries.filter((entry) => entry.symptom_code !== symptomCode);
-  return { ...day, entries: [...others, { symptom_code: symptomCode, custom_label: null, severity }] };
 }
