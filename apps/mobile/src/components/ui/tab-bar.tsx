@@ -18,7 +18,9 @@ const PARENT_TAB: Record<string, string> = { 'day/[date]': 'calendar' };
 
 const ICON_SIZE = 28;
 const TAB_MIN_HEIGHT = 56;
-const MIN_BOTTOM_PADDING = 20;
+const MIN_BOTTOM_PADDING = 8;
+/** The home indicator sits low in the inset, so labels can use part of it. */
+const BOTTOM_INSET_TRIM = 18;
 /** Labels are already 16px; cap Dynamic Type so they don't clip the bar. */
 const LABEL_MAX_SCALE = 1.3;
 
@@ -40,7 +42,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   return (
     <View
       accessibilityRole="tablist"
-      style={[styles.bar, { paddingBottom: Math.max(insets.bottom, MIN_BOTTOM_PADDING) }]}>
+      style={[styles.bar, { paddingBottom: Math.max(insets.bottom - BOTTOM_INSET_TRIM, MIN_BOTTOM_PADDING) }]}>
       {TABS.map((tab) => {
         const isActive = activeTab === tab.name;
         const color = isActive ? colors.accent : colors.textMuted;
@@ -71,7 +73,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderTopWidth: 1,
     borderTopColor: colors.divider,
-    paddingTop: spacing.xs,
+    paddingTop: spacing.xxs,
     paddingHorizontal: spacing.xs,
   },
   tab: { flex: 1, minHeight: TAB_MIN_HEIGHT, alignItems: 'center', justifyContent: 'center', gap: spacing.xxs },

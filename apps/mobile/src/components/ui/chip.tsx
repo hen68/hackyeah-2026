@@ -34,6 +34,10 @@ const styles = StyleSheet.create({
   },
   selected: { borderColor: colors.accent, backgroundColor: colors.softPinkStrong },
   unselected: { borderColor: colors.border, backgroundColor: colors.surface },
-  pressed: { backgroundColor: colors.softPinkStrong, transform: [{ scale: PRESSED_SCALE }] },
+  pressed: {
+    borderColor: colors.pressedOutline,
+    backgroundColor: colors.softPinkStrong,
+    transform: [{ scale: PRESSED_SCALE }],
+  },
   label: { ...type.chip, color: colors.text },
 });

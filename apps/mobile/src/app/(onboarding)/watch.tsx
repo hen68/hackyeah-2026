@@ -37,15 +37,7 @@ export default function WatchScreen() {
           <Text style={styles.link}>Skip</Text>
         </Pressable>
       }
-      footer={
-        state.watch ? (
-          <PrimaryButton label="Continue" onPress={goToResult} />
-        ) : (
-          <Pressable onPress={goToResult} accessibilityRole="button" accessibilityLabel="Not now" style={styles.notNow}>
-            <Text style={styles.link}>Not now</Text>
-          </Pressable>
-        )
-      }>
+>
       <View style={styles.titleRow}>
         <View style={styles.badge}>
           <Icon name="watch" size={BADGE_ICON_SIZE} strokeWidth={1.6} />
@@ -98,6 +90,8 @@ export default function WatchScreen() {
       </View>
 
       <Text style={styles.footnote}>You decide what to share. You can disconnect at any time.</Text>
+
+      {state.watch && <PrimaryButton label="Continue" onPress={goToResult} />}
     </OnboardingScreen>
   );
 }
@@ -105,7 +99,6 @@ export default function WatchScreen() {
 const styles = StyleSheet.create({
   skip: { minHeight: sizes.minTouchTarget + 4, justifyContent: 'center', paddingHorizontal: spacing.xxs },
   link: { ...type.option, fontSize: 19, color: colors.accent },
-  notNow: { minHeight: sizes.severityRowHeight, alignItems: 'center', justifyContent: 'center' },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   badge: {
     width: BADGE_SIZE,

@@ -140,7 +140,7 @@ export function CheckInCard({
       </View>
 
       {open && (
-        <Card tone="soft">
+        <Card tone="soft" style={styles.questionPanel}>
           <Text accessibilityRole="header" style={styles.question}>
             {question}
           </Text>
@@ -173,6 +173,7 @@ const styles = StyleSheet.create({
   toGo: { ...type.label, fontSize: 18, color: colors.textMuted },
   track: { height: 8, borderRadius: 4, backgroundColor: colors.progressTrack, overflow: 'hidden' },
   fill: { height: 8, borderRadius: 4, backgroundColor: colors.accent },
+  questionPanel: { padding: spacing.md, gap: spacing.sm },
   question: { ...type.question, color: colors.text },
   hint: { ...type.body, fontSize: 17, lineHeight: 24, color: colors.tealDark },
   muted: { ...type.body, color: colors.textMuted },
