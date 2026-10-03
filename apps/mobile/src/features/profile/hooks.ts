@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { isReminderOn, setReminder } from '@/features/profile/reminder';
 import { getProfile, updateProfile, type Profile, type ProfilePatch } from '@/lib/api/profile';
 import { connectWearable, disconnectWearable, listWearableConnections } from '@/lib/api/wearables';
 
@@ -36,4 +37,16 @@ export function useToggleWearable(patientId: string) {
       isConnected ? disconnectWearable(patientId, provider) : connectWearable(patientId, provider),
     onSettled: () => queryClient.invalidateQueries({ queryKey: wearableKey(patientId) }),
   });
+}
+
+const REMINDER_KEY = ['reminder'] as const;
+
+export function useReminder() {
+  const queryClient = useQueryClient();
+  const status = useQuery({ queryKey: REMINDER_KEY, queryFn: isReminderOn });
+  const toggle = useMutation({
+    mutationFn: setReminder,
+    onSuccess: (result) => queryClient.setQueryData(REMINDER_KEY, result === 'on'),
+  });
+  return { isOn: status.data ?? false, isLoading: status.isPending, toggle };
 }
