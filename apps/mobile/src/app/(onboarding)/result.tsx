@@ -1,6 +1,6 @@
 import { Redirect } from 'expo-router';
-import { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo } from 'react';
+import { BackHandler, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/ui/primary-button';
@@ -34,11 +34,18 @@ export default function ResultScreen() {
   const save = useSaveOnboarding(patientId, answers);
   const complete = useUpdateProfile(patientId);
 
+  // Android back would leave and remount this screen, re-running the save and re-sending the note.
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
+    return () => subscription.remove();
+  }, []);
+
   // Answers live in memory; after an app restart mid-flow, start the questions again.
   if (!answers) return <Redirect href="/age" />;
 
   const copy = STAGE_COPY[inferStage(answers.ageBand, answers.lastPeriod)];
-  const errorMessage = save.error ? toUserMessage(save.error) : complete.error ? toUserMessage(complete.error) : null;
+  const failure = complete.error ?? save.error;
+  const errorMessage = failure ? toUserMessage(failure) : null;
 
   const handleStart = () => complete.mutate({ onboarding_completed_at: new Date().toISOString() });
 
@@ -84,6 +91,7 @@ export default function ResultScreen() {
           <PrimaryButton label="Try again" onPress={save.retry} />
         ) : (
           <PrimaryButton
+            isBusy={!save.isSuccess || complete.isPending}
             label={
               save.isSuccess ? (complete.isPending ? 'Starting…' : 'Start my first check-in') : 'Saving your answers…'
             }
@@ -126,6 +134,6 @@ const styles = StyleSheet.create({
   },
   stepNumber: { ...type.option, fontSize: 19, fontFamily: type.heading.fontFamily, color: colors.accent },
   stepText: { ...type.body, flex: 1, fontSize: 20, lineHeight: 28, paddingTop: 6, color: colors.text },
-  footer: { paddingHorizontal: spacing.xl, paddingTop: spacing.xs, paddingBottom: spacing.xxl, gap: spacing.sm },
+  footer: { paddingHorizontal: spacing.xl, paddingTop: spacing.xs, paddingBottom: spacing.md, gap: spacing.sm },
   error: { ...type.body, color: colors.accentPressed, textAlign: 'center' },
 });

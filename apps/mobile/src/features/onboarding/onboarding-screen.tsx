@@ -64,7 +64,7 @@ export function ChoiceQuestion<T extends string>({
       <Text accessibilityRole="header" style={styles.title}>
         {title}
       </Text>
-      <View accessibilityLabel={title} style={styles.options}>
+      <View style={styles.options}>
         {options.map((option) => (
           <OptionButton
             key={option.value}
