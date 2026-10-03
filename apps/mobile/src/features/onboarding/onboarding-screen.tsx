@@ -87,7 +87,8 @@ export const onboardingStyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
   body: { gap: SECTION_GAP, paddingTop: spacing.md, paddingBottom: spacing.xl },
-  footer: { paddingTop: spacing.xs, paddingBottom: spacing.xxl },
+  // Screen already pads the bottom safe area; this only separates the button from the home indicator.
+  footer: { paddingTop: spacing.xs, paddingBottom: spacing.xs },
   title: onboardingStyles.title,
   options: { gap: spacing.sm },
   hint: { ...type.body, color: colors.textMuted },
