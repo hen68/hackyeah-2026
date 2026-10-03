@@ -29,6 +29,8 @@ const STATIC_RING_SCALE = 1.25;
 type VoiceButtonProps = {
   status: VoiceStatus;
   level: SharedValue<number>;
+  /** Current status text, also used as the button’s accessible name. */
+  label: string;
   onPress: () => void;
 };
 
@@ -55,7 +57,7 @@ function Ring({ index, level, breath, presence }: RingProps) {
 }
 
 /** The big mic. While listening, rings pulse with her voice (a still ring when Reduce Motion is on). */
-export function VoiceButton({ status, level, onPress }: VoiceButtonProps) {
+export function VoiceButton({ status, level, label, onPress }: VoiceButtonProps) {
   const isReducedMotion = useReducedMotion();
   const isListening = status === 'listening';
   const isBusy = status === 'requesting' || status === 'stopping';
@@ -80,10 +82,11 @@ export function VoiceButton({ status, level, onPress }: VoiceButtonProps) {
         : RINGS.map((index) => <Ring key={index} index={index} level={level} breath={breath} presence={presence} />)}
       <Pressable
         onPress={onPress}
+        disabled={isBusy}
         accessibilityRole="button"
-        accessibilityLabel={isListening ? 'Stop listening' : 'Tap to talk'}
+        accessibilityLabel={label}
         accessibilityHint="Your words appear in the message box so you can check them before sending"
-        accessibilityState={{ busy: isBusy, selected: isListening }}
+        accessibilityState={{ busy: isBusy, disabled: isBusy, selected: isListening }}
         style={({ pressed }) => [styles.mic, (pressed || isListening) && styles.micActive]}>
         <Icon name="mic" size={MIC_ICON} color={colors.textOnAccent} />
       </Pressable>

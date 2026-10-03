@@ -116,7 +116,7 @@ export default function ChatScreen() {
         <SafeAreaView edges={['bottom']} style={styles.footer}>
           <Text style={styles.disclaimer}>{DISCLAIMER}</Text>
           <View style={styles.voiceRow}>
-            <VoiceButton status={voice.status} level={voice.level} onPress={voice.toggle} />
+            <VoiceButton status={voice.status} level={voice.level} label={voice.label} onPress={voice.toggle} />
             <Text accessibilityLiveRegion="polite" style={styles.voiceLabel}>
               {voice.label}
             </Text>
