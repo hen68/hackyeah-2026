@@ -43,7 +43,7 @@ export default function ResultScreen() {
   // Answers live in memory; after an app restart mid-flow, start the questions again.
   if (!answers) return <Redirect href="/age" />;
 
-  const copy = STAGE_COPY[inferStage(answers.ageBand, answers.lastPeriod)];
+  const copy = STAGE_COPY[inferStage(answers)];
   const failure = complete.error ?? save.error;
   const errorMessage = failure ? toUserMessage(failure) : null;
 

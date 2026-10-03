@@ -34,7 +34,6 @@ describe('saveOnboarding', () => {
       age_band: '55_59',
       last_period: 'gt_12m',
       hrt_status: 'no',
-      menopause_stage: 'postmenopause',
       timezone: expect.any(String),
     });
     expect(deps.replaceOnboardingAnswers).toHaveBeenCalledWith(PATIENT_ID, [
