@@ -20,6 +20,8 @@ type SeverityPickerProps = {
   accessibilityLabel: string;
 };
 
+const PRESSED_SCALE = 0.98;
+
 /** 1–5 severity scale from the Today artboard: numbered dot + label per row. */
 export function SeverityPicker({ value, onChange, accessibilityLabel }: SeverityPickerProps) {
   return (
@@ -34,7 +36,7 @@ export function SeverityPicker({ value, onChange, accessibilityLabel }: Severity
             accessibilityRole="radio"
             accessibilityLabel={`${severity}, ${label}`}
             accessibilityState={{ selected: isSelected }}
-            style={[styles.row, isSelected ? styles.selected : styles.unselected]}>
+            style={({ pressed }) => [styles.row, isSelected ? styles.selected : styles.unselected, pressed && styles.pressed]}>
             <View style={[styles.dot, { backgroundColor: severityColors[severity] }]}>
               <Text style={[styles.dotText, { color: severityTextColors[severity] }]}>{severity}</Text>
             </View>
@@ -60,6 +62,7 @@ const styles = StyleSheet.create({
   // 1px less padding offsets the thicker border so content doesn't shift on select.
   selected: { borderWidth: 3, borderColor: colors.selectedOutline, paddingHorizontal: spacing.md - 1 },
   unselected: { borderWidth: 2, borderColor: colors.border },
+  pressed: { backgroundColor: colors.softPinkStrong, transform: [{ scale: PRESSED_SCALE }] },
   dot: {
     width: sizes.severityDot,
     height: sizes.severityDot,

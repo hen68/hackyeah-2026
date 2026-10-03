@@ -11,6 +11,7 @@ type OptionButtonProps = {
 
 const CHECK_ICON_SIZE = 16;
 const CHECK_STROKE_WIDTH = 3;
+const PRESSED_SCALE = 0.98;
 
 /** Single answer row from the onboarding questions (OnbAge, OnbPeriod, OnbHRT). */
 export function OptionButton({ label, isSelected, onPress }: OptionButtonProps) {
@@ -20,7 +21,7 @@ export function OptionButton({ label, isSelected, onPress }: OptionButtonProps) 
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ selected: isSelected }}
-      style={[styles.option, isSelected ? styles.selected : styles.unselected]}>
+      style={({ pressed }) => [styles.option, isSelected ? styles.selected : styles.unselected, pressed && styles.pressed]}>
       <Text style={styles.label}>{label}</Text>
       {isSelected && (
         <View style={styles.check}>
@@ -44,6 +45,7 @@ const styles = StyleSheet.create({
   },
   selected: { borderColor: colors.accent, backgroundColor: colors.softPinkStrong },
   unselected: { borderColor: colors.border, backgroundColor: colors.surface },
+  pressed: { backgroundColor: colors.softPinkStrong, transform: [{ scale: PRESSED_SCALE }] },
   label: { ...type.option, color: colors.text, flexShrink: 1 },
   check: {
     width: sizes.checkBadge,
