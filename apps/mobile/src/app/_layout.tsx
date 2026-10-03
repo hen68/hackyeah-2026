@@ -94,6 +94,8 @@ function RootNavigator() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="chat" options={{ presentation: 'modal' }} />
         <Stack.Screen name="day/[date]" />
+        <Stack.Screen name="privacy" />
+        <Stack.Screen name="help" />
       </Stack.Protected>
       <Stack.Protected guard={route === 'onboarding'}>
         <Stack.Screen name="(onboarding)" />
