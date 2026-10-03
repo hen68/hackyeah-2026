@@ -11,11 +11,7 @@ export async function getSymptomCatalog(): Promise<SymptomCatalogItem[]> {
 }
 
 export async function getMonitoringPlan(patientId: string): Promise<MonitoringPlan | null> {
-  const { data, error } = await supabase
-    .from('monitoring_plans')
-    .select('*')
-    .eq('patient_id', patientId)
-    .maybeSingle();
+  const { data, error } = await supabase.from('monitoring_plans').select('*').eq('patient_id', patientId).maybeSingle();
   if (error) throw error;
   return data;
 }

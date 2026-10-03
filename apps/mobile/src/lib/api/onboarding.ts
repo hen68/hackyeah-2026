@@ -8,10 +8,7 @@ export type OnboardingAnswer = { question: OnboardingQuestion; answer: string };
  * Replaces all of the patient's answers (delete, then insert; the table has no update policy).
  * Not atomic, but retry-safe: a rerun converges on the same rows.
  */
-export async function replaceOnboardingAnswers(
-  patientId: string,
-  answers: readonly OnboardingAnswer[],
-): Promise<void> {
+export async function replaceOnboardingAnswers(patientId: string, answers: readonly OnboardingAnswer[]): Promise<void> {
   const { error: deleteError } = await supabase.from('onboarding_answers').delete().eq('patient_id', patientId);
   if (deleteError) throw deleteError;
 
