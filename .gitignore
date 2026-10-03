@@ -1,0 +1,10 @@
+# OS
+.DS_Store
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+
+# env
+.env
+.env.local
