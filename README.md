@@ -1,6 +1,10 @@
 # HackYeah 2026
 
-Project repo for HackYeah 2026.
+**Digna**, a menopause symptom companion built for HackYeah 2026.
+
+Patients check in daily, chat with Digna, and see their month at a glance in the Expo app. Symptoms mentioned in chat are logged to the day. A patient shares their data with a doctor through a one-time link code, and doctors use an external admin panel. Data lives in a hosted Supabase project (Postgres with row-level security on every table). The AI parts (`chat` and the doctor's `context-check`) run as Supabase edge functions.
+
+See [docs/demo.md](docs/demo.md) for the demo run book and smoke path, and [plans/digna-mvp-end-to-end.md](plans/digna-mvp-end-to-end.md) for the plan.
 
 ## Structure
 
@@ -16,6 +20,7 @@ Project repo for HackYeah 2026.
 cd apps/mobile
 pnpm install
 pnpm start
+npx tsc --noEmit && npx expo lint && pnpm test   # checks
 ```
 
 ### Web
