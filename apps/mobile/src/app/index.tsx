@@ -1,98 +1,47 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from 'react';
+import { ScrollView, StyleSheet, Text } from 'react-native';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { Card } from '@/components/ui/card';
+import { Chip } from '@/components/ui/chip';
+import { OptionButton } from '@/components/ui/option-button';
+import { PrimaryButton } from '@/components/ui/primary-button';
+import { Screen } from '@/components/ui/screen';
+import { SeverityPicker } from '@/components/ui/severity-picker';
+import { StepProgress } from '@/components/ui/step-progress';
+import { colors, spacing, type, type Severity } from '@/theme/tokens';
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+const AGE_OPTIONS = ['40 to 44', '45 to 49', '50 to 54'];
 
+/** Temporary UI-kit preview; Step 5b replaces this route with the real Home. */
 export default function HomeScreen() {
+  const [age, setAge] = useState<string | null>(null);
+  const [severity, setSeverity] = useState<Severity | null>(null);
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+    <Screen background="app">
+      <ScrollView contentContainerStyle={styles.content}>
+        <Text style={styles.title}>Digna UI kit</Text>
+        <StepProgress step={1} />
+        {AGE_OPTIONS.map((label) => (
+          <OptionButton key={label} label={label} isSelected={age === label} onPress={() => setAge(label)} />
+        ))}
+        <PrimaryButton
+          label={age ? 'Continue' : 'Choose an answer'}
+          disabled={age === null}
+          onPress={() => setAge(null)}
+        />
+        <Card>
+          <Text style={styles.question}>How bad were your hot flushes today?</Text>
+          <SeverityPicker value={severity} onChange={setSeverity} accessibilityLabel="Hot flushes" />
+        </Card>
+        <Chip label="Dizziness" onPress={() => setSeverity(null)} />
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+  content: { gap: spacing.md, paddingVertical: spacing.xl },
+  title: { ...type.title, color: colors.text },
+  question: { ...type.question, color: colors.text },
 });
