@@ -15,6 +15,10 @@ if (!supabaseUrl || !supabasePublishableKey) {
   );
 }
 
+/** For direct `fetch` calls the client can't make, e.g. streaming the chat function. */
+export const SUPABASE_URL: string = supabaseUrl;
+export const SUPABASE_PUBLISHABLE_KEY: string = supabasePublishableKey;
+
 export const supabase = createClient<Database>(supabaseUrl, supabasePublishableKey, {
   auth: {
     storage: localStorage,

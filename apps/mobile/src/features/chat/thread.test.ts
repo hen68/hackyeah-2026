@@ -1,10 +1,13 @@
 import {
   addedTitle,
+  appendText,
   assistantItem,
   chipDotColor,
   chipText,
   fromHistory,
   patchItem,
+  removeItem,
+  streamingId,
   upsertLast,
   userItem,
   type ChipObservation,
@@ -96,6 +99,29 @@ describe('send helpers', () => {
     const items = patchItem([userItem(vars), userItem({ ...vars, id: 'x' })], 'x', { status: 'failed', error: 'e' });
 
     expect(items.map((item) => item.status)).toEqual(['sending', 'failed']);
+  });
+
+  test('appendText creates the streaming reply on the first delta and grows it without mutating', () => {
+    const start = [userItem(vars)];
+    const first = appendText(start, vars, 'That ');
+    const second = appendText(first, vars, 'sounds hard.');
+
+    expect(start).toHaveLength(1);
+    expect(first[1]).toMatchObject({
+      id: streamingId('local-1'),
+      role: 'assistant',
+      content: 'That ',
+      status: 'streaming',
+    });
+    expect(second[1].content).toBe('That sounds hard.');
+    expect(first[1].content).toBe('That ');
+    expect(second).toHaveLength(2);
+  });
+
+  test('removeItem drops only the matching item', () => {
+    const items = appendText([userItem(vars)], vars, 'Hi');
+
+    expect(removeItem(items, streamingId('local-1'))).toEqual([userItem(vars)]);
   });
 });
 

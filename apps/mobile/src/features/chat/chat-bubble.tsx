@@ -53,8 +53,13 @@ export function ChatBubble({ item, labelFor, onRetry, onChangeDay }: ChatBubbleP
   }
 
   const firstDay = item.observations[0]?.observedOn;
+  // Hidden from screen readers while it grows; the finished reply is announced once.
+  const isStreaming = item.status === 'streaming';
   return (
-    <View style={[styles.bubble, styles.assistant]}>
+    <View
+      accessibilityElementsHidden={isStreaming}
+      importantForAccessibility={isStreaming ? 'no-hide-descendants' : 'auto'}
+      style={[styles.bubble, styles.assistant]}>
       <Text style={styles.text}>{item.content}</Text>
       {firstDay && (
         <View style={styles.added}>
