@@ -75,3 +75,45 @@ export const PRIVACY_PROMISES = [
 ] as const;
 
 export type PrivacyIcon = (typeof PRIVACY_PROMISES)[number]["icon"];
+
+/** Production origin for metadata, sitemap and robots; set on the host. */
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+export const STATS = [
+  {
+    value: "3 in 4",
+    body: "women have menopause symptoms, and a quarter describe them as severe.",
+    source: "British Menopause Society",
+    href: "https://thebms.org.uk/wp-content/uploads/2026/03/NEW-BMS-Menopause-Practice-Standards-MAR2026-B.pdf",
+  },
+  {
+    value: "93%",
+    body: "of Polish women surveyed could not correctly define menopause.",
+    source: "Kulczyk Foundation, “Menopauza bez tabu”",
+    href: "https://kulczykfoundation.org.pl/menopauza/badania",
+  },
+] as const;
+
+export const FAQS = [
+  {
+    question: "Is Digna medical advice?",
+    answer:
+      "No. Digna helps you track symptoms and prepare for visits. It doesn't diagnose or replace your doctor. In an emergency, call 112.",
+  },
+  {
+    question: "Who am I talking to?",
+    answer:
+      "Digna's companion is AI, not a person. It turns what you tell it into entries in your daily log.",
+  },
+  {
+    question: "Where is my data stored?",
+    answer:
+      "On servers in the EU (Ireland). Only you, and a doctor you choose to link, can see it.",
+  },
+  {
+    question: "When can I use it?",
+    answer: "Digna is coming soon to iPhone and Android.",
+  },
+] as const;
+
+export const BUILT_WITH = "Built at HackYeah 2026 with Expo, Supabase, Claude and Next.js.";

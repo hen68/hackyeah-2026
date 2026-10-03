@@ -1,28 +1,20 @@
 @import "tailwindcss";
 
-/* Digna brand tokens — mirror apps/mobile/src/theme/tokens.ts. */
+/* Digna web tokens. Severity colours mirror apps/mobile/src/theme/tokens.ts. */
 @theme {
   --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), Georgia, serif;
 
-  --color-accent: #e0245e;
-  --color-accent-pressed: #b81c4b;
-  --color-accent-ink: #c41e52;
+  /* Editorial palette: warm paper, one rose accent, hairlines. */
+  --color-paper: #fbf8f5;
+  --color-sand: #f4eee8;
+  --color-line: #e6dfd8;
+  --color-rose: #a3324f;
+  --color-rose-deep: #84263f;
+  --color-rose-soft: #f6e6ea;
+
   --color-ink: #191c1f;
   --color-muted: #4b525b;
-  --color-border: #e2e2e5;
-  --color-divider: #efeff1;
-  --color-app-bg: #f7f8f9;
-  --color-soft-pink: #fff3f5;
-  --color-hero-ink: #4a1f2c;
-  --color-progress-track: #f1d3db;
-  --color-report-line: #ff5a7d;
-  --color-hero-from: #ffc0cd;
-  --color-hero-to: #ff8fa6;
-  --color-report-border: var(--color-hero-from);
-  --color-report-track: #f2f2f2;
-  --color-teal-dark: #13777a;
-  --color-teal-ink: #1f4f50;
-  --color-teal-soft: #e3f4f4;
 
   --color-severity-1: #1da4a6;
   --color-severity-2: #6fbf8a;
@@ -31,16 +23,12 @@
   --color-severity-5: #e0245e;
 }
 
-@utility bg-hero {
-  background-image: linear-gradient(180deg, var(--color-hero-from) 0%, var(--color-hero-to) 100%);
-}
-
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  background: var(--color-white);
+  background: var(--color-paper);
   color: var(--color-ink);
 }
 

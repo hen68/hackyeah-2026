@@ -1,26 +1,52 @@
-import { Icon, LogoMark, SectionHeading, StoreBadges } from "./brand";
-import { NAV_LINKS, PRIVACY_PROMISES, STEPS, type PrivacyIcon } from "./content";
+import { CONTAINER, Icon, LogoMark, SectionHeading, StoreStatus } from "./brand";
+import { BUILT_WITH, FAQS, NAV_LINKS, PRIVACY_PROMISES, STATS, STEPS, type PrivacyIcon } from "./content";
 
-const CARD_GRID = "grid grid-cols-[repeat(auto-fit,minmax(min(280px,100%),1fr))] gap-6";
+const SECTION_Y = "py-[clamp(72px,10vw,128px)]";
+
+export function WhyItMatters() {
+  return (
+    <section aria-labelledby="why-title" className="border-y border-line bg-sand">
+      <div className={`${CONTAINER} grid gap-x-12 gap-y-10 py-16 lg:grid-cols-12`}>
+        <h2 id="why-title" className="text-base font-semibold tracking-[0.12em] text-rose uppercase lg:col-span-3">
+          Why it matters
+        </h2>
+        <ul className="grid gap-x-12 gap-y-10 sm:grid-cols-2 lg:col-span-9">
+          {STATS.map((stat) => (
+            <li key={stat.value} className="flex flex-col gap-3">
+              <span className="font-serif text-[clamp(56px,6vw,80px)] leading-none tracking-[-0.03em]">
+                {stat.value}
+              </span>
+              <p className="max-w-[34ch] text-[19px] leading-normal">{stat.body}</p>
+              <a href={stat.href} className="text-base text-muted underline underline-offset-4 hover:text-ink">
+                Source: {stat.source}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
 
 export function HowItWorks() {
   return (
-    <section id="how" aria-labelledby="how-title" className="px-6 pt-28 pb-24">
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-12">
-        <SectionHeading id="how-title" eyebrow="How it works">
-          One minute a day. A clearer visit.
-        </SectionHeading>
-        <ol className={CARD_GRID}>
+    <section id="how" aria-labelledby="how-title">
+      <div className={`${CONTAINER} grid gap-x-12 gap-y-12 lg:grid-cols-12 ${SECTION_Y}`}>
+        <div className="lg:col-span-5">
+          <SectionHeading id="how-title" eyebrow="How it works">
+            One minute a day. A clearer visit.
+          </SectionHeading>
+        </div>
+        <ol className="flex flex-col lg:col-span-7">
           {STEPS.map((step, index) => (
-            <li key={step.title} className="flex flex-col gap-4.5 rounded-3xl bg-soft-pink px-7 py-8">
-              <span
-                aria-hidden="true"
-                className="flex size-13 items-center justify-center rounded-full bg-white text-[22px] font-bold text-accent-ink"
-              >
-                {index + 1}
+            <li key={step.title} className="grid grid-cols-[56px_1fr] gap-x-4 border-t border-line py-8 last:border-b">
+              <span aria-hidden="true" className="font-serif text-[28px] leading-none text-rose">
+                {String(index + 1).padStart(2, "0")}
               </span>
-              <h3 className="text-2xl font-bold leading-tight">{step.title}</h3>
-              <p className="text-[19px] leading-normal text-muted">{step.body}</p>
+              <div className="flex flex-col gap-2">
+                <h3 className="text-[24px] leading-tight font-semibold">{step.title}</h3>
+                <p className="max-w-[52ch] text-[19px] leading-normal text-muted">{step.body}</p>
+              </div>
             </li>
           ))}
         </ol>
@@ -37,23 +63,17 @@ const PRIVACY_ICON_PATHS: Record<PrivacyIcon, string> = {
 
 export function PrivacySection() {
   return (
-    <section id="privacy" aria-labelledby="privacy-title" className="px-6 py-24">
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-10">
-        <SectionHeading
-          id="privacy-title"
-          eyebrow="Our privacy promise"
-          eyebrowClassName="text-teal-dark"
-        >
+    <section id="privacy" aria-labelledby="privacy-title">
+      <div className={`${CONTAINER} flex flex-col gap-14 ${SECTION_Y}`}>
+        <SectionHeading id="privacy-title" eyebrow="Our privacy promise">
           What you tell me stays yours
         </SectionHeading>
-        <ul className={CARD_GRID}>
+        <ul className="grid gap-x-12 gap-y-10 md:grid-cols-3">
           {PRIVACY_PROMISES.map((promise) => (
-            <li key={promise.title} className="flex flex-col gap-4 rounded-3xl bg-teal-soft px-7 py-8">
-              <span className="flex size-13 items-center justify-center rounded-full bg-white">
-                <Icon path={PRIVACY_ICON_PATHS[promise.icon]} className="text-teal-dark" />
-              </span>
-              <h3 className="text-[22px] font-bold">{promise.title}</h3>
-              <p className="text-[19px] leading-normal text-teal-ink">{promise.body}</p>
+            <li key={promise.title} className="flex flex-col gap-3 border-t border-ink pt-6">
+              <Icon path={PRIVACY_ICON_PATHS[promise.icon]} size={24} strokeWidth={1.6} className="text-rose" />
+              <h3 className="text-[22px] font-semibold">{promise.title}</h3>
+              <p className="text-[19px] leading-normal text-muted">{promise.body}</p>
             </li>
           ))}
         </ul>
@@ -62,20 +82,40 @@ export function PrivacySection() {
   );
 }
 
+export function Faq() {
+  return (
+    <section id="faq" aria-labelledby="faq-title" className="border-t border-line">
+      <div className={`${CONTAINER} grid gap-x-12 gap-y-10 lg:grid-cols-12 ${SECTION_Y}`}>
+        <div className="lg:col-span-5">
+          <SectionHeading id="faq-title" eyebrow="Questions">
+            Good to know
+          </SectionHeading>
+        </div>
+        <dl className="flex flex-col lg:col-span-7">
+          {FAQS.map((faq) => (
+            <div key={faq.question} className="flex flex-col gap-2 border-t border-line py-7 last:border-b">
+              <dt className="text-[22px] font-semibold">{faq.question}</dt>
+              <dd className="max-w-[56ch] text-[19px] leading-normal text-muted">{faq.answer}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </section>
+  );
+}
+
 export function ClosingCta() {
   return (
-    <section aria-labelledby="cta-title" className="px-6 pb-24">
-      <div className="bg-hero mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-x-12 gap-y-6 rounded-[40px] px-[clamp(24px,5vw,72px)] py-16">
-        <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-3">
-          <h2
-            id="cta-title"
-            className="text-[clamp(30px,3.6vw,44px)] font-bold leading-[1.1] tracking-[-0.02em]"
-          >
-            Coming soon to iPhone and Android
-          </h2>
-          <p className="text-xl leading-[1.45]">Start your first check-in on launch day.</p>
-        </div>
-        <StoreBadges variant="light" />
+    <section aria-labelledby="cta-title" className="bg-ink text-paper">
+      <div className={`${CONTAINER} flex flex-col gap-8 py-[clamp(72px,10vw,120px)]`}>
+        <h2
+          id="cta-title"
+          className="max-w-[18ch] font-serif text-[clamp(38px,5vw,64px)] leading-[1.05] font-normal tracking-[-0.02em]"
+        >
+          Coming soon to iPhone and Android.
+        </h2>
+        <p className="text-xl text-paper/80">Start your first check-in on launch day.</p>
+        <StoreStatus className="text-paper" />
       </div>
     </section>
   );
@@ -83,33 +123,35 @@ export function ClosingCta() {
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-divider px-6 pt-10 pb-12">
-      <div className="mx-auto flex max-w-[1200px] flex-wrap justify-between gap-x-12 gap-y-6">
-        <div className="flex min-w-0 flex-[1_1_360px] flex-col gap-2.5">
-          <span className="flex items-center gap-2 text-xl font-bold text-accent-ink">
-            <LogoMark size={24} />
-            Digna
-          </span>
-          <p className="max-w-[52ch] text-base leading-normal text-muted">
-            Digna does not give a diagnosis or medical advice. Always talk to your doctor about
-            your health.
-          </p>
-          <span className="text-[15px] text-muted">© {new Date().getFullYear()} Digna</span>
+    <footer className="bg-ink text-paper/80">
+      <div className={`${CONTAINER} flex flex-col gap-10 border-t border-white/15 pt-12 pb-14`}>
+        <div className="flex flex-wrap justify-between gap-x-12 gap-y-8">
+          <div className="flex max-w-[52ch] flex-col gap-3">
+            <span className="flex items-center gap-2 font-serif text-2xl text-paper">
+              <LogoMark size={22} />
+              Digna
+            </span>
+            <p className="text-lg leading-normal">
+              Digna does not give a diagnosis or medical advice. Always talk to your doctor about
+              your health.
+            </p>
+          </div>
+          <nav aria-label="Footer">
+            <ul className="flex flex-col gap-1 text-lg">
+              {NAV_LINKS.map((link) => (
+                <li key={link.href}>
+                  <a href={link.href} className="flex min-h-11 items-center text-paper underline-offset-4 hover:underline">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
-        <nav aria-label="Footer">
-          <ul className="flex flex-wrap items-start gap-x-7 gap-y-1 text-[17px] font-semibold">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  className="flex min-h-11 items-center text-accent-ink hover:text-accent-pressed"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <div className="flex flex-wrap justify-between gap-4 border-t border-white/15 pt-6 text-base">
+          <span>{BUILT_WITH}</span>
+          <span>© {new Date().getFullYear()} Digna</span>
+        </div>
       </div>
     </footer>
   );
