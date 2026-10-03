@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '@/components/ui/card';
-import { Flower } from '@/components/ui/flower';
+import { Icon } from '@/components/ui/icon';
 import { PrimaryButton } from '@/components/ui/primary-button';
 import { colors, radii, spacing, type } from '@/theme/tokens';
 
@@ -14,7 +14,7 @@ export function CheckInDoneCard({ day }: { day: string }) {
     <Card accessibilityLabel="Today’s check-in is done">
       <View style={styles.top}>
         <View style={styles.badge}>
-          <Flower size={40} />
+          <Icon name="check" size={34} strokeWidth={3} color={colors.textOnAccent} />
         </View>
         <View style={styles.text}>
           <Text accessibilityRole="header" style={styles.title}>
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     width: BADGE_SIZE,
     height: BADGE_SIZE,
     borderRadius: radii.pill,
-    backgroundColor: colors.softPink,
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
