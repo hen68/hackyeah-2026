@@ -24,7 +24,7 @@ describe('AuthForm', () => {
     await render(<AuthForm mode="register" onSubmit={onSubmit} />);
 
     await fillIn('anna@example.com', 'short');
-    expect(screen.getByRole('button', { name: 'Enter your email and password' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Create account' })).toBeDisabled();
 
     await fillIn('anna@example.com', 'long enough');
     await fireEvent.press(screen.getByRole('button', { name: 'Create account' }));

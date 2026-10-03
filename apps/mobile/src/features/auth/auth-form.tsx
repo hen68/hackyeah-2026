@@ -1,6 +1,6 @@
 import { Link, router, type Href } from 'expo-router';
-import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Icon } from '@/components/ui/icon';
 import { PrimaryButton } from '@/components/ui/primary-button';
@@ -17,7 +17,14 @@ export type AuthFormMode = 'register' | 'signIn';
 
 const COPY: Record<
   AuthFormMode,
-  { title: string; lead: string; submit: string; busy: string; switchLabel: string; switchHref: Href }
+  {
+    title: string;
+    lead: string;
+    submit: string;
+    busy: string;
+    switchLabel: string;
+    switchHref: Href;
+  }
 > = {
   register: {
     title: 'Create your account',
@@ -50,12 +57,17 @@ export function AuthForm({ mode, onSubmit }: AuthFormProps) {
   const [isBusy, setIsBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  // State updates land a render late; the ref blocks a second tap in the same frame.
+  const isInFlight = useRef(false);
+  const passwordRef = useRef<TextInput>(null);
 
   const minPassword = mode === 'register' ? MIN_PASSWORD_LENGTH : 1;
   const isValid = EMAIL_PATTERN.test(email.trim()) && password.length >= minPassword;
 
   // Success usually needs no navigation: the new session flips the root gate.
   const handleSubmit = async () => {
+    if (isInFlight.current) return;
+    isInFlight.current = true;
     setIsBusy(true);
     setError(null);
     setNotice(null);
@@ -65,81 +77,99 @@ export function AuthForm({ mode, onSubmit }: AuthFormProps) {
     } catch (cause: unknown) {
       setError(toUserMessage(cause));
     } finally {
+      isInFlight.current = false;
       setIsBusy(false);
     }
   };
 
-  const submitLabel = isBusy ? copy.busy : isValid ? copy.submit : 'Enter your email and password';
-
   return (
     <Screen>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.container}>
-        <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back" style={styles.back}>
-          <Icon name="back" size={22} strokeWidth={2.2} />
-        </Pressable>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          <Pressable
+            onPress={() => router.back()}
+            accessibilityRole="button"
+            accessibilityLabel="Back"
+            style={styles.back}>
+            <Icon name="back" size={22} strokeWidth={2.2} />
+          </Pressable>
 
-        <Text accessibilityRole="header" style={styles.title}>
-          {copy.title}
-        </Text>
-        <Text style={styles.lead}>{copy.lead}</Text>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            accessibilityLabel="Email"
-            autoCapitalize="none"
-            autoComplete="email"
-            autoCorrect={false}
-            keyboardType="email-address"
-            textContentType={mode === 'register' ? 'username' : 'emailAddress'}
-            returnKeyType="next"
-            style={styles.input}
-          />
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            accessibilityLabel="Password"
-            autoCapitalize="none"
-            autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
-            autoCorrect={false}
-            secureTextEntry
-            textContentType={mode === 'register' ? 'newPassword' : 'password'}
-            returnKeyType="go"
-            onSubmitEditing={isValid && !isBusy ? handleSubmit : undefined}
-            style={styles.input}
-          />
-        </View>
-
-        {error && (
-          <Text accessibilityRole="alert" style={styles.error}>
-            {error}
+          <Text accessibilityRole="header" style={styles.title}>
+            {copy.title}
           </Text>
-        )}
-        {notice && (
-          <Text accessibilityRole="alert" style={styles.notice}>
-            {notice}
-          </Text>
-        )}
+          <Text style={styles.lead}>{copy.lead}</Text>
 
-        <View style={styles.actions}>
-          <PrimaryButton label={submitLabel} disabled={isBusy || !isValid} onPress={handleSubmit} />
-          <Link href={copy.switchHref} replace accessibilityRole="link" style={styles.switch}>
-            {copy.switchLabel}
-          </Link>
-        </View>
+          <View style={styles.field}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              value={email}
+              onChangeText={setEmail}
+              accessibilityLabel="Email"
+              autoCapitalize="none"
+              autoComplete="email"
+              autoCorrect={false}
+              keyboardType="email-address"
+              textContentType={mode === 'register' ? 'username' : 'emailAddress'}
+              returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current?.focus()}
+              submitBehavior="submit"
+              style={styles.input}
+            />
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              ref={passwordRef}
+              value={password}
+              onChangeText={setPassword}
+              accessibilityLabel="Password"
+              autoCapitalize="none"
+              autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
+              autoCorrect={false}
+              secureTextEntry
+              textContentType={mode === 'register' ? 'newPassword' : 'password'}
+              returnKeyType="go"
+              onSubmitEditing={isValid && !isBusy ? handleSubmit : undefined}
+              style={styles.input}
+            />
+          </View>
+
+          {error && (
+            <Text accessibilityRole="alert" style={styles.error}>
+              {error}
+            </Text>
+          )}
+          {notice && (
+            <Text accessibilityRole="alert" style={styles.notice}>
+              {notice}
+            </Text>
+          )}
+
+          <View style={styles.actions}>
+            <PrimaryButton
+              label={isBusy ? copy.busy : copy.submit}
+              disabled={isBusy || !isValid}
+              onPress={handleSubmit}
+            />
+            <Link href={copy.switchHref} replace accessibilityRole="link" style={styles.switch}>
+              {copy.switchLabel}
+            </Link>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, gap: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.xxl },
+  flex: { flex: 1 },
+  container: {
+    flexGrow: 1,
+    gap: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xxl,
+  },
   back: {
     width: BACK_BUTTON_SIZE,
     height: BACK_BUTTON_SIZE,

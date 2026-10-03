@@ -22,7 +22,7 @@
 
 | Artboard | Route | Notes |
 |---|---|---|
-| `Main` (1 · Welcome) | `(auth)/welcome` | "Get started" → anonymous session → onboarding; "I already have an account" → `(auth)/sign-in` |
+| `Main` (1 · Welcome) | `(auth)/welcome` | "Get started" → `(auth)/register` (email + password) → onboarding; "I already have an account" → `(auth)/sign-in` (email + password) |
 | `OnbAge` (2) | `(onboarding)/age` | 40–44, 45–49, 50–54, 55–59, 60+ |
 | `OnbPeriod` (3) | `(onboarding)/period` | <3 mo, 3–12 mo, >1 yr, not sure/surgery |
 | `OnbHRT` (4) | `(onboarding)/hrt` | yes / no / not sure |
@@ -425,14 +425,13 @@ Font Inter 400/500/600/700. Accent `#E0245E` (pressed `#B81C4B`). Hero gradient 
 ## Step 9b — Profile
 
 - **Branch:** `feat/mobile-profile` · **Model:** default · **Depends on:** 6, 2 · **Parallel with:** 7, 8, 9a
-- **Context brief:** Build `docs/design/Profile.dc.html`. **Core:** the header card, watch connections, "My doctor" link code (`create_link_code()` RPC), "Save my account" email linking for anonymous users (use the `AuthProvider` link-email flow from `src/features/auth/`), and sign out. **Stretch items** are listed separately and skipped if time is short.
+- **Context brief:** Build `docs/design/Profile.dc.html`. **Core:** the header card, watch connections, "My doctor" link code (`create_link_code()` RPC), and sign out. (No "Save my account": every user registers with email + password.) **Stretch items** are listed separately and skipped if time is short.
 - **Tasks (core):**
   1. Header card: name, age band, stage, HRT.
   2. Watch section: connect/disconnect writes `wearable_connections`, plus a status line.
   3. "My doctor": generate a code and show it with an expiry countdown ("Share this code with your doctor. It expires in 23 h.").
-  4. "Save my account": shown when `is_anonymous`; email → code → linked.
-  5. Sign out: confirm, then `signOut`, then Welcome.
-  6. Tests: expiry formatting, and the anonymous vs linked rendering.
+  4. Sign out: confirm, then `signOut`, then Welcome.
+  5. Tests: expiry formatting.
 - **Tasks (stretch, separate commits):**
   - Daily reminder via `npx expo install expo-notifications` (check the v57 docs for Expo Go support of local notifications; if unsupported, mark it as dev-build only).
   - Text size (normal/large) through the theme scale.
@@ -486,7 +485,7 @@ Font Inter 400/500/600/700. Accent `#E0245E` (pressed `#B81C4B`). Hero gradient 
 - **Context brief:** The user stories' Definition of Done must run as one scenario. The patient checks in and chats, about 30 days of history exist, the clinician adds an interview, and the context check returns **≥1 missing topic, ≥1 discrepancy, ≥1 change**, each with source evidence. The doctor screen itself lives in the external admin panel, so **this repo's DoD artifact is the `get_context_check` JSON** captured in `docs/demo.md`. Context-check skips Claude when `interviews.extracted` is pre-filled, so **no mock flag exists in deployed code**.
 - **Tasks:**
   1. `supabase/seed.sql` (local `db reset` only):
-     - users: patient "Anna" and clinician "Dr Demo", each with `auth.users` **and matching `auth.identities`** rows (email provider) so OTP sign-in works; profiles (clinician role set by the seed)
+     - users: patient "Anna" and clinician "Dr Demo", each with `auth.users` **and matching `auth.identities`** rows (email provider, bcrypt `encrypted_password`) so password sign-in works; profiles (clinician role set by the seed)
      - a care link
      - 30 days of check-ins relative to `current_date`:
        - headache severity ≥2 on 7 days, absent from the interview (missing topic)
@@ -495,23 +494,23 @@ Font Inter 400/500/600/700. Accent `#E0245E` (pressed `#B81C4B`). Hero gradient 
      - chat messages + linked observations
      - 30 wearable nights
      - one interview with **pre-filled `extracted`** mentions
-  2. `supabase/functions/tests/dod.test.ts` (Deno, against `supabase start` + `supabase functions serve`, sign in with the seeded users via the local OTP inbox):
+  2. `supabase/functions/tests/dod.test.ts` (Deno, against `supabase start` + `supabase functions serve`, sign in with the seeded users' passwords):
      - as clinician: invoke `context-check`; assert the 3 kinds, evidence fields, and ≤5 insights; `get_context_check` returns summary_text
      - as patient: insights and interviews are not readable
   3. `docs/demo.md`:
      - the local run book (`supabase start`, `db reset`, `functions serve`, `pnpm start`)
      - the mobile smoke path: Welcome → onboarding → check-in → chat → calendar → day
-     - Anna/Dr Demo sign-in via the local Inbucket at `http://127.0.0.1:54324`
+     - Anna/Dr Demo demo passwords
      - the captured `get_context_check` JSON
   4. **Gated hosted rollout**, each step confirmed by the user:
      - `supabase link`
      - `supabase db push`
      - user sets `ANTHROPIC_API_KEY`
      - `supabase functions deploy chat context-check`
-     - enable anonymous sign-ins + OTP templates on hosted
+     - hosted auth: email provider on, "Confirm email" off, minimum password length 8, anonymous sign-ins off
      - `mcp__supabase__get_advisors` (security, performance), then fix the findings in follow-up commits
 
-     The hosted exit is a **smoke test** (sign up anonymously from the app, check in, one chat turn). The demo seed is not pushed to hosted unless the user asks.
+     The hosted exit is a **smoke test** (register from the app, check in, one chat turn). The demo seed is not pushed to hosted unless the user asks.
   5. `README.md`: architecture paragraph, run/test commands, links to `docs/api.md` and `docs/demo.md`.
   6. Final strongest-model `code-reviewer` + `security-reviewer` over `git diff <step-0-merge>..main`.
 - **Verification:** `supabase db reset && supabase test db && deno test --allow-all supabase/functions/`. All §1 invariants.
@@ -526,7 +525,7 @@ Font Inter 400/500/600/700. Accent `#E0245E` (pressed `#B81C4B`). Hero gradient 
 |---|---|---|
 | 1 | Latest canvas removed Today's "Add another symptom" opener and medication toggle. Intentional? | Yes. Extra symptoms come via Chat (`custom_label`). No medication tracking. |
 | 2 | Calendar "My watch" mode removed. | Log mode only. Watch data appears in Day detail and the Today row. |
-| 3 | Account before onboarding? | Anonymous auth on "Get started"; email linking in Profile. |
+| 3 | Account before onboarding? | Email + password registration on "Get started" (no anonymous sessions, no OTP codes; changed 2026-10-03). |
 | 4 | Language. | English app UI. Guardrails cover EN + PL. Doctor-facing insight titles use the Polish category wording from the stories. |
 | 5 | Clinician accounts. | An operator sets `profiles.role='clinician'` via SQL or the service role; no self-service. |
 | 6 | Voice / real wearables. | Stretch (Step 11). The DoD uses seeded wearable data. |
@@ -555,3 +554,4 @@ Font Inter 400/500/600/700. Accent `#E0245E` (pressed `#B81C4B`). Hero gradient 
   - **DoD:** the DoD artifact is the `get_context_check` JSON; the hosted exit is a smoke test.
   - **Mobile setup:** NativeTabs icons via sf/drawable/src (no SVG components). jest-expo setup for pnpm. Worktree install + user-supplied env.
   - **Small fixes:** Artifact `out_dir`/explicit paths; e2e test moved under `supabase/functions/tests/` with `auth.identities` seeding; Profile extras marked stretch.
+- 2026-10-03: **Auth simplified (user decision):** email + password register/sign-in replaces anonymous sessions and email OTP. No email confirmation (hosted "Confirm email" off), min password 8. Step 5b's OTP/link-email notes and Step 1b's anonymous-user notes are historical; 9b drops "Save my account".
