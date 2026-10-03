@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { supabase } from '@/lib/supabase';
 
 const CHAT_FUNCTION = 'chat';
+/** A hung or cold function must fail instead of blocking the UI. */
+const CHAT_TIMEOUT_MS = 15_000;
 
 const observationSchema = z.object({
   symptom_code: z.string().nullish(),
@@ -32,6 +34,7 @@ export type SendChatInput = {
 export async function sendChatMessage({ message, inputMode, localDate }: SendChatInput): Promise<ChatResponse> {
   const { data, error } = await supabase.functions.invoke<unknown>(CHAT_FUNCTION, {
     body: { message, input_mode: inputMode, local_date: localDate },
+    timeout: CHAT_TIMEOUT_MS,
   });
   if (error) throw error;
   return chatResponseSchema.parse(data);

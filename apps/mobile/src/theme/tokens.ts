@@ -17,6 +17,9 @@ export const colors = {
   tealDark: '#13777A',
   tealSoft: '#E3F4F4',
   selectedOutline: '#191C1F',
+  lavenderSoft: '#F6ECF8',
+  lavender: '#9C2F8E',
+  heroText: '#4A1F2C',
 } as const;
 
 export const radii = {

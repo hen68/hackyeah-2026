@@ -7,10 +7,18 @@ type PrimaryButtonProps = {
   onPress: () => void;
   /** Disabled renders the grey "Choose an answer" style; pass that copy as `label`. */
   disabled?: boolean;
+  /** Announced to screen readers while work is in progress. */
+  isBusy?: boolean;
   accessibilityHint?: string;
 };
 
-export function PrimaryButton({ label, onPress, disabled = false, accessibilityHint }: PrimaryButtonProps) {
+export function PrimaryButton({
+  label,
+  onPress,
+  disabled = false,
+  isBusy = false,
+  accessibilityHint,
+}: PrimaryButtonProps) {
   return (
     <Pressable
       onPress={onPress}
@@ -18,11 +26,8 @@ export function PrimaryButton({ label, onPress, disabled = false, accessibilityH
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled }}
-      style={({ pressed }) => [
-        styles.button,
-        disabled ? styles.disabled : pressed ? styles.pressed : styles.enabled,
-      ]}>
+      accessibilityState={{ disabled, busy: isBusy }}
+      style={({ pressed }) => [styles.button, disabled ? styles.disabled : pressed ? styles.pressed : styles.enabled]}>
       <Text style={[styles.label, disabled ? styles.disabledLabel : styles.enabledLabel]}>{label}</Text>
     </Pressable>
   );

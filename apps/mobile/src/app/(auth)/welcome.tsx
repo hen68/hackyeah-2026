@@ -1,12 +1,9 @@
-import { Link } from 'expo-router';
-import { useState } from 'react';
+import { Link, router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/ui/primary-button';
-import { useAuth } from '@/features/auth/auth-provider';
-import { toUserMessage } from '@/lib/errors';
 import { colors, radii, sizes, spacing, type } from '@/theme/tokens';
 
 const HERO_HEIGHT = 380;
@@ -17,22 +14,6 @@ const LOGO_SIZE = 64;
 
 /** Artboard `Main` (1 · Welcome). */
 export default function WelcomeScreen() {
-  const { auth } = useAuth();
-  const [isStarting, setIsStarting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Success needs no navigation: the new session flips the root gate to onboarding.
-  const handleGetStarted = async () => {
-    setIsStarting(true);
-    setError(null);
-    try {
-      await auth.startAnonymous();
-    } catch (cause: unknown) {
-      setError(toUserMessage(cause));
-      setIsStarting(false);
-    }
-  };
-
   return (
     <View style={styles.screen}>
       <View style={styles.hero}>
@@ -56,16 +37,7 @@ export default function WelcomeScreen() {
         </Text>
 
         <View style={styles.actions}>
-          {error && (
-            <Text accessibilityRole="alert" style={styles.error}>
-              {error}
-            </Text>
-          )}
-          <PrimaryButton
-            label={isStarting ? 'Starting…' : 'Get started'}
-            disabled={isStarting}
-            onPress={handleGetStarted}
-          />
+          <PrimaryButton label="Get started" onPress={() => router.push('/register')} />
           <Link href="/sign-in" style={styles.secondary} accessibilityRole="link">
             I already have an account
           </Link>
@@ -106,7 +78,6 @@ const styles = StyleSheet.create({
   title: { ...type.title, color: colors.text },
   lead: { ...type.body, fontSize: 20, lineHeight: 29, color: colors.textMuted },
   actions: { marginTop: 'auto', gap: 14 },
-  error: { ...type.body, color: colors.accentPressed, textAlign: 'center' },
   secondary: {
     ...type.option,
     fontSize: 19,
