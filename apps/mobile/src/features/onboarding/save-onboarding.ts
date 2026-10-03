@@ -48,13 +48,12 @@ export async function saveOnboarding(
   answers: CompleteAnswers,
   now: Date = new Date(),
 ): Promise<SaveOnboardingResult> {
-  const stage = inferStage(answers.ageBand, answers.lastPeriod);
+  const stage = inferStage(answers);
 
   await deps.updateProfile(patientId, {
     age_band: answers.ageBand,
     last_period: answers.lastPeriod,
     hrt_status: answers.hrtStatus,
-    menopause_stage: stage,
     timezone: deviceTimeZone(),
   });
   await deps.replaceOnboardingAnswers(patientId, toAnswerRows(answers));

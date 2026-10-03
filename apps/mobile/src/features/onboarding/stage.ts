@@ -1,20 +1,35 @@
-import type { AgeBand, LastPeriod } from '@/features/onboarding/answers';
+import type { AgeBand, HrtStatus, LastPeriod, SymptomCode } from '@/features/onboarding/answers';
 
 /** Matches `profiles_menopause_stage_check`. */
 export type MenopauseStage = 'perimenopause' | 'menopause' | 'postmenopause' | 'unknown';
 
-const POSTMENOPAUSE_AGE_BANDS: ReadonlySet<AgeBand> = new Set(['55_59', '60_plus']);
+export type StageAnswers = {
+  ageBand: AgeBand;
+  lastPeriod: LastPeriod;
+  hrtStatus: HrtStatus;
+  symptoms: readonly SymptomCode[];
+};
 
-/** Plan Step 6 rule. A guess for the patient's orientation, never a diagnosis. */
-export function inferStage(ageBand: AgeBand, lastPeriod: LastPeriod): MenopauseStage {
+const POSTMENOPAUSE_AGE_BANDS: ReadonlySet<AgeBand> = new Set(['55_59', '60_plus']);
+const UNSURE_PERI_AGE_BANDS: ReadonlySet<AgeBand> = new Set(['45_49', '50_54']);
+const VASOMOTOR_SYMPTOMS: ReadonlySet<SymptomCode> = new Set(['hot_flushes', 'night_sweats']);
+
+/**
+ * Mirrors `private.infer_menopause_stage` (the server owns `profiles.menopause_stage`); keep both in sync.
+ * A guess for the patient's orientation, never a diagnosis.
+ */
+export function inferStage({ ageBand, lastPeriod, hrtStatus, symptoms }: StageAnswers): MenopauseStage {
+  if (lastPeriod === 'gt_12m') return POSTMENOPAUSE_AGE_BANDS.has(ageBand) ? 'postmenopause' : 'menopause';
+  if (hrtStatus === 'yes') return 'unknown';
   switch (lastPeriod) {
-    case 'lt_3m':
     case '3_12m':
       return 'perimenopause';
-    case 'gt_12m':
-      return POSTMENOPAUSE_AGE_BANDS.has(ageBand) ? 'postmenopause' : 'menopause';
+    case 'lt_3m':
+      return ageBand !== '40_44' || symptoms.length > 0 ? 'perimenopause' : 'unknown';
     case 'unsure':
-      return 'unknown';
+      return UNSURE_PERI_AGE_BANDS.has(ageBand) && symptoms.some((code) => VASOMOTOR_SYMPTOMS.has(code))
+        ? 'perimenopause'
+        : 'unknown';
   }
 }
 
