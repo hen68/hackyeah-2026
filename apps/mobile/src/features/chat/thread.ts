@@ -63,10 +63,10 @@ export function fromHistory(rows: readonly ChatHistoryRow[]): ChatItem[] {
   return items;
 }
 
-export type SendVars = { id: string; message: string; localDate: string };
+export type SendVars = { id: string; message: string; localDate: string; inputMode?: ChatItem['inputMode'] };
 
-export function userItem({ id, message, localDate }: SendVars): ChatItem {
-  return { id, role: 'user', content: message, inputMode: 'text', localDate, observations: [], status: 'sending' };
+export function userItem({ id, message, localDate, inputMode = 'text' }: SendVars): ChatItem {
+  return { id, role: 'user', content: message, inputMode, localDate, observations: [], status: 'sending' };
 }
 
 export function assistantItem(response: ChatResponse, localDate: string): ChatItem {

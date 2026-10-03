@@ -75,6 +75,11 @@ describe('send helpers', () => {
     expect(userItem(vars)).toMatchObject({ role: 'user', content: 'tired', status: 'sending', observations: [] });
   });
 
+  test('userItem defaults to text and keeps a dictated message as voice', () => {
+    expect(userItem(vars).inputMode).toBe('text');
+    expect(userItem({ ...vars, inputMode: 'voice' }).inputMode).toBe('voice');
+  });
+
   test('assistantItem maps the response and defaults observed_on to the message day', () => {
     const item = assistantItem(
       { reply: 'Noted.', message_id: 'm1', observations: [{ symptom_code: 'tiredness', severity: 3 }] },

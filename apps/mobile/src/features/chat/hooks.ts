@@ -34,7 +34,8 @@ export function useSendChat(patientId: string) {
 
   return useMutation({
     scope: { id: `chat-${patientId}` },
-    mutationFn: ({ message, localDate }: SendVars) => sendChatMessage({ message, inputMode: 'text', localDate }),
+    mutationFn: ({ message, localDate, inputMode = 'text' }: SendVars) =>
+      sendChatMessage({ message, inputMode, localDate }),
     onMutate: async (vars) => {
       await queryClient.cancelQueries({ queryKey: key });
       update((items) => upsertLast(items, userItem(vars)));
