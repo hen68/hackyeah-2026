@@ -10,8 +10,14 @@ import { ERROR_MESSAGES, toUserMessage } from '@/lib/errors';
 describe('toUserMessage', () => {
   test('maps known auth error codes', () => {
     expect(toUserMessage(new AuthApiError('exists', 422, 'email_exists'))).toBe(ERROR_MESSAGES.emailExists);
-    expect(toUserMessage(new AuthApiError('expired', 403, 'otp_expired'))).toBe(ERROR_MESSAGES.badCode);
-    expect(toUserMessage(new AuthApiError('no signups', 422, 'otp_disabled'))).toBe(ERROR_MESSAGES.noAccount);
+    expect(toUserMessage(new AuthApiError('exists', 422, 'user_already_exists'))).toBe(ERROR_MESSAGES.emailExists);
+    expect(toUserMessage(new AuthApiError('bad login', 400, 'invalid_credentials'))).toBe(
+      ERROR_MESSAGES.wrongCredentials,
+    );
+    expect(toUserMessage(new AuthApiError('weak', 422, 'weak_password'))).toBe(ERROR_MESSAGES.weakPassword);
+    expect(toUserMessage(new AuthApiError('unconfirmed', 400, 'email_not_confirmed'))).toBe(
+      ERROR_MESSAGES.emailNotConfirmed,
+    );
     expect(toUserMessage(new AuthApiError('slow down', 429, 'over_email_send_rate_limit'))).toBe(
       ERROR_MESSAGES.rateLimited,
     );

@@ -4,47 +4,21 @@ import type { Database } from '@/lib/database.types';
 
 type Client = Pick<SupabaseClient<Database>, 'auth'>;
 
-/** Errors meaning "no account for this email"; hidden so the screen can't be used to probe emails. */
-const UNKNOWN_ACCOUNT_CODES = new Set(['otp_disabled', 'signup_disabled', 'user_not_found']);
+/** `confirm_email` only happens if "Confirm email" is on in the Supabase project. */
+export type RegisterResult = 'signed_in' | 'confirm_email';
 
-/** Auth flows from plan Step 5b. Each throws the Supabase error so callers can map it. */
+/** Email + password auth. Each method throws the Supabase error so callers can map it. */
 export function createAuthService(client: Client) {
   return {
-    /** "Get started": an anonymous session; the profile row is created by a DB trigger. */
-    async startAnonymous(): Promise<void> {
-      const { error } = await client.auth.signInAnonymously();
+    /** Creates the account; the profile row is created by a DB trigger. */
+    async register(email: string, password: string): Promise<RegisterResult> {
+      const { data, error } = await client.auth.signUp({ email: email.trim(), password });
       if (error) throw error;
+      return data.session ? 'signed_in' : 'confirm_email';
     },
 
-    /**
-     * "I already have an account": sends a code, never creates a new user.
-     * Resolves for unknown emails too; the wrong-code error on verify covers that case.
-     */
-    async requestSignInCode(email: string): Promise<void> {
-      const { error } = await client.auth.signInWithOtp({
-        email: email.trim(),
-        options: { shouldCreateUser: false },
-      });
-      if (error && !(error.code && UNKNOWN_ACCOUNT_CODES.has(error.code))) throw error;
-    },
-
-    async verifySignInCode(email: string, token: string): Promise<void> {
-      const { error } = await client.auth.verifyOtp({ email: email.trim(), token: token.trim(), type: 'email' });
-      if (error) throw error;
-    },
-
-    /** Profile "Save my account": attaches an email to the current anonymous user. */
-    async requestLinkEmail(email: string): Promise<void> {
-      const { error } = await client.auth.updateUser({ email: email.trim() });
-      if (error) throw error;
-    },
-
-    async verifyLinkEmail(email: string, token: string): Promise<void> {
-      const { error } = await client.auth.verifyOtp({
-        email: email.trim(),
-        token: token.trim(),
-        type: 'email_change',
-      });
+    async signIn(email: string, password: string): Promise<void> {
+      const { error } = await client.auth.signInWithPassword({ email: email.trim(), password });
       if (error) throw error;
     },
 

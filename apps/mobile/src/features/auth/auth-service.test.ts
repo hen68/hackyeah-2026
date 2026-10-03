@@ -2,15 +2,14 @@ import { AuthApiError } from '@supabase/supabase-js';
 
 import { createAuthService } from '@/features/auth/auth-service';
 
+const SESSION = { access_token: 'token' };
+
 function createMockClient() {
-  const ok = () => jest.fn().mockResolvedValue({ data: {}, error: null });
   return {
     auth: {
-      signInAnonymously: ok(),
-      signInWithOtp: ok(),
-      verifyOtp: ok(),
-      updateUser: ok(),
-      signOut: ok(),
+      signUp: jest.fn().mockResolvedValue({ data: { user: {}, session: SESSION }, error: null }),
+      signInWithPassword: jest.fn().mockResolvedValue({ data: { user: {}, session: SESSION }, error: null }),
+      signOut: jest.fn().mockResolvedValue({ error: null }),
     },
   };
 }
@@ -23,73 +22,44 @@ function setup() {
 }
 
 describe('auth service', () => {
-  test('"Get started" signs in anonymously', async () => {
+  test('register signs up with a trimmed email and the password as typed', async () => {
     const { client, service } = setup();
 
-    await service.startAnonymous();
+    const result = await service.register('  anna@example.com ', ' secret 123 ');
 
-    expect(client.auth.signInAnonymously).toHaveBeenCalledTimes(1);
+    expect(client.auth.signUp).toHaveBeenCalledWith({ email: 'anna@example.com', password: ' secret 123 ' });
+    expect(result).toBe('signed_in');
   });
 
-  test('sign-in requests a code without creating a user', async () => {
+  test('register reports that confirmation is needed when no session comes back', async () => {
+    const { client, service } = setup();
+    client.auth.signUp.mockResolvedValueOnce({ data: { user: {}, session: null }, error: null });
+
+    await expect(service.register('anna@example.com', 'password1')).resolves.toBe('confirm_email');
+  });
+
+  test('register rethrows "email already registered" so the UI can suggest signing in', async () => {
+    const { client, service } = setup();
+    const exists = new AuthApiError('User already registered', 422, 'user_already_exists');
+    client.auth.signUp.mockResolvedValueOnce({ data: { user: null, session: null }, error: exists });
+
+    await expect(service.register('taken@example.com', 'password1')).rejects.toBe(exists);
+  });
+
+  test('sign-in uses email and password', async () => {
     const { client, service } = setup();
 
-    await service.requestSignInCode('  anna@example.com ');
+    await service.signIn(' anna@example.com', 'password1');
 
-    expect(client.auth.signInWithOtp).toHaveBeenCalledWith({
-      email: 'anna@example.com',
-      options: { shouldCreateUser: false },
-    });
+    expect(client.auth.signInWithPassword).toHaveBeenCalledWith({ email: 'anna@example.com', password: 'password1' });
   });
 
-  test('sign-in hides whether the email has an account', async () => {
+  test('sign-in surfaces wrong credentials', async () => {
     const { client, service } = setup();
-    client.auth.signInWithOtp.mockResolvedValueOnce({
-      data: {},
-      error: new AuthApiError('Signups not allowed for otp', 422, 'otp_disabled'),
-    });
+    const invalid = new AuthApiError('Invalid login credentials', 400, 'invalid_credentials');
+    client.auth.signInWithPassword.mockResolvedValueOnce({ data: { user: null, session: null }, error: invalid });
 
-    await expect(service.requestSignInCode('nobody@example.com')).resolves.toBeUndefined();
-  });
-
-  test('sign-in still surfaces other errors such as rate limits', async () => {
-    const { client, service } = setup();
-    const limited = new AuthApiError('slow down', 429, 'over_email_send_rate_limit');
-    client.auth.signInWithOtp.mockResolvedValueOnce({ data: {}, error: limited });
-
-    await expect(service.requestSignInCode('anna@example.com')).rejects.toBe(limited);
-  });
-
-  test('sign-in verifies the code as an email OTP', async () => {
-    const { client, service } = setup();
-
-    await service.verifySignInCode('anna@example.com', ' 123456 ');
-
-    expect(client.auth.verifyOtp).toHaveBeenCalledWith({ email: 'anna@example.com', token: '123456', type: 'email' });
-  });
-
-  describe('linking an email to an anonymous account', () => {
-    test('requests an email change, then verifies it with an email_change OTP', async () => {
-      const { client, service } = setup();
-
-      await service.requestLinkEmail('anna@example.com');
-      await service.verifyLinkEmail('anna@example.com', '654321');
-
-      expect(client.auth.updateUser).toHaveBeenCalledWith({ email: 'anna@example.com' });
-      expect(client.auth.verifyOtp).toHaveBeenCalledWith({
-        email: 'anna@example.com',
-        token: '654321',
-        type: 'email_change',
-      });
-    });
-
-    test('rethrows "email already registered" so the UI can suggest signing in', async () => {
-      const { client, service } = setup();
-      const exists = new AuthApiError('A user with this email address has already been registered', 422, 'email_exists');
-      client.auth.updateUser.mockResolvedValueOnce({ data: { user: null }, error: exists });
-
-      await expect(service.requestLinkEmail('taken@example.com')).rejects.toBe(exists);
-    });
+    await expect(service.signIn('anna@example.com', 'wrong')).rejects.toBe(invalid);
   });
 
   test('sign out surfaces errors', async () => {
