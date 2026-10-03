@@ -11,6 +11,8 @@ pnpm start                     # dev client on the phone
 npx expo run:ios --device      # only after a native package changes (e.g. expo-notifications)
 ```
 
+After pulling a native package or config plugin change (e.g. `expo-speech-recognition`), run `npx expo prebuild --platform ios` before `expo run:ios`. `ios/` is generated and git-ignored, and an old one lacks new permission strings, so the app crashes on first mic use.
+
 `apps/mobile/.env.local` holds `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Ask a teammate for it.
 
 Hosted auth must have the email provider on, **Confirm email off**, a minimum password length of 8, and anonymous sign-ins off.
