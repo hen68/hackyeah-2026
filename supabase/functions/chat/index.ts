@@ -34,7 +34,11 @@ function respondSse(events: AsyncIterable<ChatEvent>): Response {
       } catch {
         send(errorEvent(500, GENERIC_ERROR));
       }
-      if (isOpen) controller.close();
+      try {
+        controller.close();
+      } catch {
+        // The client went away; the turn is already saved.
+      }
     },
   });
   return new Response(body, {
