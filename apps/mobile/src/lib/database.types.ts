@@ -522,6 +522,35 @@ export type Database = {
           },
         ]
       }
+      onboarding_answers: {
+        Row: {
+          answer: string
+          created_at: string
+          patient_id: string
+          question: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          patient_id: string
+          question: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          patient_id?: string
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_answers_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age_band: string | null
@@ -685,6 +714,16 @@ export type Database = {
           expires_at: string
         }[]
       }
+      get_calendar_month: {
+        Args: { p_month: string }
+        Returns: {
+          day: string
+          has_bleeding: boolean
+          has_checkin: boolean
+          status: string
+        }[]
+      }
+      get_day: { Args: { p_day: string }; Returns: Json }
       redeem_link_code: { Args: { p_code: string }; Returns: string }
     }
     Enums: {
