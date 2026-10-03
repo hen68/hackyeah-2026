@@ -16,13 +16,13 @@ const SYMPTOMS = [
   { code: 'night_sweats', label: 'Night sweats' },
 ];
 
-function renderCard(answered: Record<string, number> = {}) {
+function renderCard(answered: Record<string, number> = {}, symptoms = SYMPTOMS) {
   return render(
     <CheckInCard
       patientId="p1"
       day="2026-10-20"
       isToday
-      symptoms={SYMPTOMS}
+      symptoms={symptoms}
       answered={answered}
       initialNote=""
       night={null}
@@ -67,16 +67,35 @@ describe('CheckInCard', () => {
     );
   });
 
-  test('opens the success screen after a successful submit', async () => {
+  test('opens the success screen with time spent after a first submit', async () => {
     mockMutate.mockImplementation((_vars, options: { onSuccess: () => void }) => options.onSuccess());
-    await renderCard({ hot_flushes: 1, night_sweats: 2 });
+    await renderCard();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Update check-in' }));
+    await fireEvent.press(screen.getByRole('radio', { name: '1, None' }));
+    await fireEvent.press(screen.getByRole('radio', { name: '2, Mild' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Submit check-in' }));
 
     expect(mockPush).toHaveBeenCalledWith({
       pathname: '/checkin-done',
       params: { day: '2026-10-20', minutes: '1' },
     });
+  });
+
+  test('an existing check-in can only be resubmitted after a change, without a time stat', async () => {
+    mockMutate.mockImplementation((_vars, options: { onSuccess: () => void }) => options.onSuccess());
+    await renderCard({ hot_flushes: 1, night_sweats: 2 });
+    expect(screen.getByRole('button', { name: 'No changes to save' })).toBeDisabled();
+
+    await fireEvent.press(screen.getByRole('radio', { name: '5, Severe' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Update check-in' }));
+
+    expect(mockPush).toHaveBeenCalledWith({ pathname: '/checkin-done', params: { day: '2026-10-20' } });
+  });
+
+  test('shows an empty state without Submit when the plan has no symptoms', async () => {
+    await renderCard({}, []);
+    expect(screen.getByText('No questions yet')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: /submit/i })).toBeNull();
   });
 
   test('Next is disabled on an unanswered question', async () => {

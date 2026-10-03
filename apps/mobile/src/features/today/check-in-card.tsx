@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { AccessibilityInfo, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Card } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
@@ -49,6 +49,9 @@ export function CheckInCard({ patientId, day, isToday, symptoms, answered, initi
   const [note, setNote] = useState(initialNote);
   const [startedAt] = useState(() => Date.now());
   const submit = useSubmitCheckin(patientId, day);
+  const isUpdate = Object.keys(answered).length > 0;
+  const isDirty =
+    note.trim() !== initialNote.trim() || codes.some((code) => answers[code] !== answered[code]);
 
   const doneCount = codes.filter((code) => answers[code] !== undefined).length;
   const remaining = codes.length - doneCount;
@@ -58,10 +61,19 @@ export function CheckInCard({ patientId, day, isToday, symptoms, answered, initi
   const question = open ? questionFor(open.code, open.label) : '';
   const hint = open ? watchHint(open.code, night) : null;
 
+  const goTo = (next: number) => {
+    const target = symptoms[next];
+    if (!target) return;
+    setIndex(next);
+    AccessibilityInfo.announceForAccessibility(
+      `Question ${next + 1} of ${symptoms.length}. ${questionFor(target.code, target.label)}`,
+    );
+  };
+
   const handlePick = (severity: Severity) => {
     if (!open) return;
     setAnswers((current) => ({ ...current, [open.code]: severity }));
-    if (!isLast) setIndex(index + 1);
+    if (!isLast) goTo(index + 1);
   };
 
   const handleSubmit = () => {
@@ -71,7 +83,8 @@ export function CheckInCard({ patientId, day, isToday, symptoms, answered, initi
         onSuccess: () =>
           router.push({
             pathname: '/checkin-done',
-            params: { day, minutes: String(minutesSpent(startedAt, Date.now())) },
+            // Minutes only mean something for a fresh check-in, not an edit.
+            params: isUpdate ? { day } : { day, minutes: String(minutesSpent(startedAt, Date.now())) },
           }),
       },
     );
@@ -81,9 +94,24 @@ export function CheckInCard({ patientId, day, isToday, symptoms, answered, initi
     ? 'Saving…'
     : remaining > 0
       ? `Answer ${remaining} more to submit`
-      : Object.keys(answered).length > 0
-        ? 'Update check-in'
-        : 'Submit check-in';
+      : !isUpdate
+        ? 'Submit check-in'
+        : isDirty
+          ? 'Update check-in'
+          : 'No changes to save';
+
+  if (symptoms.length === 0) {
+    return (
+      <Card accessibilityLabel="Today’s check-in">
+        <Text accessibilityRole="header" style={styles.title}>
+          No questions yet
+        </Text>
+        <Text style={styles.empty}>
+          Your plan has no symptoms to track yet. You can still tell Digna how you feel below.
+        </Text>
+      </Card>
+    );
+  }
 
   return (
     <Card accessibilityLabel={isToday ? 'Today’s check-in' : 'Change this day'}>
@@ -115,13 +143,13 @@ export function CheckInCard({ patientId, day, isToday, symptoms, answered, initi
               direction="back"
               label="Back"
               isDisabled={index === 0}
-              onPress={() => setIndex(index - 1)}
+              onPress={() => goTo(index - 1)}
             />
             <StepButton
               direction="next"
               label="Next"
               isDisabled={isLast || answers[open.code] === undefined}
-              onPress={() => setIndex(index + 1)}
+              onPress={() => goTo(index + 1)}
             />
           </View>
         </Card>
@@ -150,7 +178,7 @@ export function CheckInCard({ patientId, day, isToday, symptoms, answered, initi
       <PrimaryButton
         label={submitLabel}
         onPress={handleSubmit}
-        disabled={remaining > 0 || submit.isPending}
+        disabled={remaining > 0 || (isUpdate && !isDirty) || submit.isPending}
         isBusy={submit.isPending}
       />
     </Card>
@@ -222,4 +250,5 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   error: { ...type.body, fontSize: 17, color: colors.accentPressed },
+  empty: { ...type.body, color: colors.textMuted },
 });

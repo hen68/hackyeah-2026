@@ -28,7 +28,8 @@ export default function CheckInDoneScreen() {
   const params = useLocalSearchParams<{ day?: string; minutes?: string }>();
   const today = toLocalDateString();
   const day = params.day && parseLocalDate(params.day) ? params.day : today;
-  const minutes = Math.max(1, Number.parseInt(params.minutes ?? '', 10) || 1);
+  const parsedMinutes = Number.parseInt(params.minutes ?? '', 10);
+  const minutes = Number.isFinite(parsedMinutes) ? Math.max(1, parsedMinutes) : null;
   const isToday = day === today;
 
   const checkinDays = useCheckinDays(patientId).data ?? [day];
@@ -60,10 +61,12 @@ export default function CheckInDoneScreen() {
               <Text style={styles.statValue}>{streak.count}</Text>
               <Text style={styles.statLabel}>{streak.count === 1 ? 'day in a row' : 'days in a row'}</Text>
             </View>
-            <View accessible style={styles.stat}>
-              <Text style={styles.statValue}>{`${minutes} min`}</Text>
-              <Text style={styles.statLabel}>well spent today</Text>
-            </View>
+            {minutes !== null && (
+              <View accessible style={styles.stat}>
+                <Text style={styles.statValue}>{`${minutes} min`}</Text>
+                <Text style={styles.statLabel}>well spent today</Text>
+              </View>
+            )}
           </View>
 
           <View
@@ -88,7 +91,7 @@ export default function CheckInDoneScreen() {
             <Text style={styles.doctorText}>
               {`Every check-in makes the report for your doctor clearer. You have ${noteDays} ${
                 noteDays === 1 ? 'day' : 'days'
-              } of notes ready to share.`}
+              } of check-ins ready to share.`}
             </Text>
           </View>
         </View>

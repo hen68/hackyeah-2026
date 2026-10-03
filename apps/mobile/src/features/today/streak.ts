@@ -1,6 +1,8 @@
 import { parseLocalDate, toLocalDateString } from '@/lib/dates';
 
 const WEEK_LENGTH = 7;
+/** Indexed by `Date.getDay()`; fixed so the strip doesn't depend on the engine's Intl data. */
+const WEEKDAY_SHORT = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'] as const;
 
 /** `day` shifted by `delta` calendar days (YYYY-MM-DD in, YYYY-MM-DD out). */
 export function addDays(day: string, delta: number): string {
@@ -35,7 +37,7 @@ export function lastWeek(checkinDays: readonly string[], today: string): WeekDay
   return Array.from({ length: WEEK_LENGTH }, (_, index) => {
     const day = addDays(today, index - (WEEK_LENGTH - 1));
     const date = parseLocalDate(day);
-    const weekday = date ? date.toLocaleDateString('en-GB', { weekday: 'short' }).slice(0, 2) : '';
+    const weekday = date ? WEEKDAY_SHORT[date.getDay()] : '';
     return { day, weekday, isDone: done.has(day), isToday: day === today };
   });
 }

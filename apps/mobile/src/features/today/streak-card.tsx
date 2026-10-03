@@ -28,9 +28,10 @@ export function StreakCard({ checkinDays, today, remaining }: StreakCardProps) {
   const week = lastWeek(checkinDays, today);
   const title = count > 0 ? daysInARow(count) : 'Start your streak';
   const sub = subtitle(count, isTodayDone, remaining);
+  const doneThisWeek = week.filter((day) => day.isDone).length;
 
   return (
-    <View accessible accessibilityLabel={`${title}. ${sub}`} style={styles.card}>
+    <View accessible accessibilityLabel={`${title}. ${sub} ${doneThisWeek} of the last 7 days checked in.`} style={styles.card}>
       <View style={styles.top}>
         <View style={styles.badge}>
           <Flower size={34} />

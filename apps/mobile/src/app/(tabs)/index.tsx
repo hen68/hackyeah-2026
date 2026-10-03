@@ -64,7 +64,8 @@ export default function TodayScreen() {
           </View>
         ) : dayQuery.data && plan.symptoms ? (
           <CheckInCard
-            key={day}
+            // Remount when the saved day changes (e.g. chat added entries) so the draft starts from it.
+            key={`${day}:${JSON.stringify(answered)}:${dayQuery.data.checkin?.note ?? ''}`}
             patientId={patientId}
             day={day}
             isToday={isToday}

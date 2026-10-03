@@ -58,11 +58,13 @@ export function useSubmitCheckin(patientId: string, day: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ answers, note }: SubmitVars) => submitCheckin({ patientId, day, answers: { ...answers }, note }),
-    onSuccess: () =>
+    // Settled, not success: a failed entries write can still leave the day's row behind.
+    // Check-in days refetch even when inactive, so the success screen opens on fresh numbers.
+    onSettled: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: dayKeys.detail(day) }),
         queryClient.invalidateQueries({ queryKey: CALENDAR_KEY }),
-        queryClient.invalidateQueries({ queryKey: checkinDaysKey(patientId) }),
+        queryClient.invalidateQueries({ queryKey: checkinDaysKey(patientId), refetchType: 'all' }),
       ]),
   });
 }
