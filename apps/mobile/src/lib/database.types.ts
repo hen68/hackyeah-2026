@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          clinician_id: string | null
+          created_at: string
+          doctor_name: string | null
+          id: string
+          patient_id: string
+          scheduled_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          clinician_id?: string | null
+          created_at?: string
+          doctor_name?: string | null
+          id?: string
+          patient_id: string
+          scheduled_at: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          clinician_id?: string | null
+          created_at?: string
+          doctor_name?: string | null
+          id?: string
+          patient_id?: string
+          scheduled_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_clinician_id_fkey"
+            columns: ["clinician_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       care_links: {
         Row: {
           clinician_id: string
@@ -551,6 +599,72 @@ export type Database = {
           },
         ]
       }
+      patient_reports: {
+        Row: {
+          appointment_id: string
+          attempts: number
+          created_at: string
+          data: Json | null
+          error_code: string | null
+          generated_at: string | null
+          id: string
+          model: string | null
+          narrative_source: string | null
+          patient_id: string
+          period_end: string | null
+          period_start: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_id: string
+          attempts?: number
+          created_at?: string
+          data?: Json | null
+          error_code?: string | null
+          generated_at?: string | null
+          id?: string
+          model?: string | null
+          narrative_source?: string | null
+          patient_id: string
+          period_end?: string | null
+          period_start?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string
+          attempts?: number
+          created_at?: string
+          data?: Json | null
+          error_code?: string | null
+          generated_at?: string | null
+          id?: string
+          model?: string | null
+          narrative_source?: string | null
+          patient_id?: string
+          period_end?: string | null
+          period_start?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_reports_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: true
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_reports_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age_band: string | null
@@ -723,8 +837,10 @@ export type Database = {
           status: string
         }[]
       }
+      get_context_check: { Args: { p_id: string }; Returns: Json }
       get_day: { Args: { p_day: string }; Returns: Json }
       redeem_link_code: { Args: { p_code: string }; Returns: string }
+      verify_report_job_secret: { Args: { p_secret: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
