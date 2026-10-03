@@ -45,12 +45,6 @@ export function dayStatus(severities: readonly number[]): DayStatus {
   return 'hard';
 }
 
-/** Where the form opens: the first unanswered question, or the first one when all are answered. */
-export function firstUnansweredIndex(planCodes: readonly string[], answers: Readonly<Record<string, number>>): number {
-  const index = planCodes.findIndex((code) => answers[code] === undefined);
-  return index === -1 ? 0 : index;
-}
-
 const SECONDS_PER_QUESTION = 15;
 const MS_PER_MINUTE = 60_000;
 
