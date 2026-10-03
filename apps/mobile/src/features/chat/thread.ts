@@ -1,5 +1,6 @@
 import { isSeverity, severityLabel } from '@/features/today/check-in';
 import type { ChatHistoryRow, ChatResponse } from '@/lib/api/chat';
+import { formatLongDate } from '@/lib/dates';
 import { severityColors } from '@/theme/tokens';
 
 const UNRATED_DOT = '#C9CDD2';
@@ -108,4 +109,12 @@ export function chipText(observation: ChipObservation, labelFor: (code: string) 
 
 export function chipDotColor(severity: number | null): string {
   return severity !== null && isSeverity(severity) ? severityColors[severity] : UNRATED_DOT;
+}
+
+/** "today" only when every chip landed on the day the message was sent. */
+export function addedTitle(item: Pick<ChatItem, 'localDate' | 'observations'>): string {
+  const days = new Set(item.observations.map((observation) => observation.observedOn));
+  if (days.size === 1 && days.has(item.localDate)) return 'I’ve added this to today:';
+  if (days.size === 1) return `I’ve added this to ${formatLongDate([...days][0])}:`;
+  return 'I’ve added this:';
 }

@@ -177,7 +177,16 @@ function MoreSection({ patientId }: { patientId: string }) {
       <View style={styles.list}>
         <ReminderRow />
         <Pressable
-          onPress={() => download.mutate()}
+          onPress={() =>
+            Alert.alert(
+              'Download your data?',
+              'Your check-ins, notes and chats will be shared as text with the app you choose. Only share them with apps and people you trust.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Continue', onPress: () => download.mutate() },
+              ],
+            )
+          }
           disabled={download.isPending}
           accessibilityRole="button"
           accessibilityHint="Shares a copy of everything Digna keeps about you"

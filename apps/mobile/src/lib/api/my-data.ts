@@ -12,7 +12,11 @@ function unwrap<T>({ data, error }: Result<T>): T {
 /** Everything Digna stores about the patient, readable under their own RLS. Each list is capped by the API's row limit (1000). */
 export async function getMyData(patientId: string, now: Date = new Date()) {
   const [profile, answers, plan, checkins, messages, observations, nights, watches] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', patientId).maybeSingle(),
+    supabase
+      .from('profiles')
+      .select('display_name, age_band, last_period, hrt_status, menopause_stage, timezone, created_at')
+      .eq('id', patientId)
+      .maybeSingle(),
     supabase.from('onboarding_answers').select('question, answer, created_at').eq('patient_id', patientId),
     supabase.from('monitoring_plans').select('symptom_codes, updated_at').eq('patient_id', patientId).maybeSingle(),
     supabase
