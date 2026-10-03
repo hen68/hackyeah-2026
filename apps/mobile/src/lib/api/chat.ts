@@ -27,6 +27,8 @@ const chatResponseSchema = z.object({
   reply: z.string(),
   observations: z.array(observationSchema),
   message_id: z.string(),
+  /** Streaming only: the guardrail swapped the reply, so the shown text must be replaced at once. */
+  replace: z.boolean().optional(),
 });
 
 export type ChatObservation = z.infer<typeof observationSchema>;
