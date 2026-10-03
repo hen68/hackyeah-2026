@@ -104,7 +104,7 @@ function ReportPreview() {
         </ul>
       </div>
 
-      <figcaption className="text-[13px] leading-normal text-muted">
+      <figcaption className="text-[15px] leading-normal text-muted">
         Example report with sample data.
       </figcaption>
     </figure>

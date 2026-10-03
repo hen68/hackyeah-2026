@@ -16,7 +16,9 @@
   --color-hero-ink: #4a1f2c;
   --color-progress-track: #f1d3db;
   --color-report-line: #ff5a7d;
-  --color-report-border: #ffc0cd;
+  --color-hero-from: #ffc0cd;
+  --color-hero-to: #ff8fa6;
+  --color-report-border: var(--color-hero-from);
   --color-report-track: #f2f2f2;
   --color-teal-dark: #13777a;
   --color-teal-ink: #1f4f50;
@@ -30,7 +32,7 @@
 }
 
 @utility bg-hero {
-  background-image: linear-gradient(180deg, #ffc0cd 0%, #ff8fa6 100%);
+  background-image: linear-gradient(180deg, var(--color-hero-from) 0%, var(--color-hero-to) 100%);
 }
 
 html {
@@ -38,14 +40,13 @@ html {
 }
 
 body {
-  background: #ffffff;
+  background: var(--color-white);
   color: var(--color-ink);
 }
 
 :focus-visible {
   outline: 3px solid var(--color-ink);
   outline-offset: 3px;
-  border-radius: 8px;
 }
 
 @media (prefers-reduced-motion: reduce) {

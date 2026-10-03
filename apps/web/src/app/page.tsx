@@ -1,5 +1,5 @@
 import { DoctorSection } from "@/components/landing/doctor-section";
-import { Hero } from "@/components/landing/hero";
+import { Hero, SiteHeader } from "@/components/landing/hero";
 import {
   ClosingCta,
   HowItWorks,
@@ -10,8 +10,9 @@ import {
 export default function Home() {
   return (
     <>
-      <Hero />
+      <SiteHeader />
       <main className="flex flex-col">
+        <Hero />
         <HowItWorks />
         <DoctorSection />
         <PrivacySection />

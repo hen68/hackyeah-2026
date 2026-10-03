@@ -1,14 +1,14 @@
 import { LogoMark, StoreBadges } from "./brand";
 import { NAV_LINKS, PREVIEW_SELECTED_SEVERITY, SEVERITY_SCALE } from "./content";
 
-export function Hero() {
+/** Solid hero-from so it joins seamlessly with the hero gradient below it. */
+export function SiteHeader() {
   return (
-    <header id="top" className="bg-hero rounded-b-[48px] px-6">
-      <div className="mx-auto flex max-w-[1200px] flex-col">
-        <nav
-          aria-label="Main"
-          className="flex min-h-22 flex-wrap items-center justify-between gap-x-8 gap-y-3 py-4"
-        >
+    <header id="top" className="bg-hero-from px-6">
+      <nav
+        aria-label="Main"
+        className="mx-auto flex min-h-22 max-w-[1200px] flex-wrap items-center justify-between gap-x-8 gap-y-3 py-4"
+      >
           <a href="#top" className="flex min-h-11 items-center gap-2.5 text-2xl font-bold text-ink">
             <span className="flex size-11 items-center justify-center rounded-full bg-white">
               <LogoMark />
@@ -27,14 +27,23 @@ export function Hero() {
               </li>
             ))}
           </ul>
-        </nav>
+      </nav>
+    </header>
+  );
+}
 
-        <div className="flex flex-wrap items-end gap-x-16 gap-y-12 pt-10">
+export function Hero() {
+  return (
+    <section aria-labelledby="hero-title" className="bg-hero rounded-b-[48px] px-6">
+        <div className="mx-auto flex max-w-[1200px] flex-wrap items-end gap-x-16 gap-y-12 pt-10">
           <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-6 pb-18">
             <span className="text-[19px] font-semibold text-hero-ink">
               Your daily menopause companion
             </span>
-            <h1 className="text-[clamp(40px,6vw,68px)] font-bold leading-[1.05] tracking-[-0.03em]">
+            <h1
+              id="hero-title"
+              className="text-[clamp(40px,6vw,68px)] font-bold leading-[1.05] tracking-[-0.03em]"
+            >
               Feel understood through menopause
             </h1>
             <p className="max-w-[34ch] text-[clamp(20px,2vw,24px)] leading-[1.45]">
@@ -47,8 +56,7 @@ export function Hero() {
           </div>
           <PhonePreview />
         </div>
-      </div>
-    </header>
+    </section>
   );
 }
 

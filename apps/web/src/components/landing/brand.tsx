@@ -46,7 +46,7 @@ export function StoreBadges({ variant = "dark" }: { variant?: "dark" | "light" }
   const tone = variant === "dark" ? "bg-ink text-white" : "bg-white text-ink";
 
   return (
-    <ul className="flex flex-wrap gap-3" aria-label="Coming soon to">
+    <ul className="flex flex-wrap gap-3">
       {STORES.map((store) => (
         <li
           key={store}
