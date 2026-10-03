@@ -79,7 +79,7 @@ export function createExtractMentions(apiKey: string, model: string = DEFAULT_MO
     const codes = catalog.map((s) => `${s.code} (${s.label})`).join(", ");
     const completion = await client.chat.completions.create({
       model,
-      max_tokens: 2048,
+      max_completion_tokens: 4096,
       messages: [
         {
           role: "system",

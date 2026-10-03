@@ -47,13 +47,21 @@ export const RECORD_TURN_TOOL = {
 export function createLlmTurn(apiKey: string, model: string = DEFAULT_MODEL): LlmTurn {
   const client = new OpenAI({ apiKey });
   return async ({ system, messages }) => {
-    const completion = await client.chat.completions.create({
-      model,
-      max_tokens: 1024,
-      messages: [{ role: "system", content: system }, ...messages],
-      tools: [RECORD_TURN_TOOL],
-      tool_choice: { type: "function", function: { name: RECORD_TURN_TOOL.function.name } },
-    });
+    let completion;
+    try {
+      completion = await client.chat.completions.create({
+        model,
+        max_completion_tokens: 2048,
+        messages: [{ role: "system", content: system }, ...messages],
+        tools: [RECORD_TURN_TOOL],
+        tool_choice: { type: "function", function: { name: RECORD_TURN_TOOL.function.name } },
+      });
+    } catch (error) {
+      // Status and code only: provider messages can echo parts of the key.
+      const e = error as { status?: number; code?: string; type?: string };
+      console.error("openai_call_failed", { model, status: e.status, code: e.code, type: e.type });
+      throw error;
+    }
     const message = completion.choices[0]?.message;
     let toolInput: unknown = null;
     const call = message?.tool_calls?.find((c) => c.type === "function");
