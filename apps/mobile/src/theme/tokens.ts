@@ -20,6 +20,11 @@ export const colors = {
   lavenderSoft: '#F6ECF8',
   lavender: '#9C2F8E',
   heroText: '#4A1F2C',
+  flowerPetal: '#F28AA5',
+  flowerCenter: '#FDE3EA',
+  flowerStem: '#6B3A4A',
+  progressTrack: '#F1D3DB',
+  blush: '#FCE4EA',
 } as const;
 
 export const radii = {
@@ -129,9 +134,13 @@ export const severityTextColors: Record<Severity, string> = {
 
 export type DayStatus = 'good' | 'okay' | 'hard' | 'none';
 
+/**
+ * One pink family, light to deep, so a run of tougher days still reads as a garden, not a warning.
+ * Every fill keeps `colors.text` above 4.5:1.
+ */
 export const dayStatusColors: Record<DayStatus, string> = {
-  good: '#CDEDED',
-  okay: '#FFD48A',
-  hard: '#F46A8C',
+  good: '#FFEEF2',
+  okay: '#FFCFDB',
+  hard: '#F7A6BB',
   none: colors.surface,
 };

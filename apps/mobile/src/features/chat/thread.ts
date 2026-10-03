@@ -21,7 +21,8 @@ export type ChatItem = {
   inputMode: 'text' | 'voice';
   localDate: string;
   observations: readonly ChipObservation[];
-  status: 'sent' | 'sending' | 'failed';
+  /** `streaming`: an assistant reply still arriving token by token. */
+  status: 'sent' | 'sending' | 'streaming' | 'failed';
   /** Patient-safe text, set when `status` is `failed`. */
   error?: string;
 };
@@ -91,6 +92,33 @@ export function assistantItem(response: ChatResponse, localDate: string): ChatIt
 /** Moves the item to the end with new fields (retry re-sends it as the newest message). */
 export function upsertLast(items: readonly ChatItem[], item: ChatItem): ChatItem[] {
   return [...items.filter((existing) => existing.id !== item.id), item];
+}
+
+/** Id of the streaming reply bubble for the patient message `sendId`. */
+export const streamingId = (sendId: string) => `${sendId}-reply`;
+
+/** Grows the streaming reply to `sendId`, creating its bubble on the first piece of text. */
+export function appendText(items: readonly ChatItem[], { id, localDate }: SendVars, text: string): ChatItem[] {
+  const replyId = streamingId(id);
+  if (!items.some((item) => item.id === replyId)) {
+    return [
+      ...items,
+      {
+        id: replyId,
+        role: 'assistant',
+        content: text,
+        inputMode: 'text',
+        localDate,
+        observations: [],
+        status: 'streaming',
+      },
+    ];
+  }
+  return items.map((item) => (item.id === replyId ? { ...item, content: item.content + text } : item));
+}
+
+export function removeItem(items: readonly ChatItem[], id: string): ChatItem[] {
+  return items.filter((item) => item.id !== id);
 }
 
 export function patchItem(items: readonly ChatItem[], id: string, patch: Partial<ChatItem>): ChatItem[] {

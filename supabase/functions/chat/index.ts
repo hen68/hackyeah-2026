@@ -1,7 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
 import { handleChat } from "./handler.ts";
-import { createLlmTurn, DEFAULT_MODEL } from "./llm.ts";
+import { createLlmStream, createLlmTurn, DEFAULT_MODEL } from "./llm.ts";
+import { type ChatEvent, encodeSse, errorEvent, handleChatStream } from "./stream.ts";
 import { createStore } from "./store.ts";
 
 const CORS = {
@@ -9,9 +10,45 @@ const CORS = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+const GENERIC_ERROR = "Something went wrong. Please try again.";
 
 const respond = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
+
+// Keeps reading events after the client disconnects, so the assistant turn is still saved.
+function respondSse(events: AsyncIterable<ChatEvent>): Response {
+  const encoder = new TextEncoder();
+  const body = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      let isOpen = true;
+      const send = (event: ChatEvent) => {
+        if (!isOpen) return;
+        try {
+          controller.enqueue(encoder.encode(encodeSse(event)));
+        } catch {
+          isOpen = false;
+        }
+      };
+      try {
+        for await (const event of events) send(event);
+      } catch {
+        send(errorEvent(500, GENERIC_ERROR));
+      }
+      try {
+        controller.close();
+      } catch {
+        // The client went away; the turn is already saved.
+      }
+    },
+  });
+  return new Response(body, {
+    headers: { ...CORS, "Content-Type": "text/event-stream", "Cache-Control": "no-cache" },
+  });
+}
+
+const wantsStream = (req: Request, body: unknown) =>
+  (typeof body === "object" && body !== null && (body as { stream?: unknown }).stream === true) ||
+  (req.headers.get("Accept") ?? "").includes("text/event-stream");
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -38,14 +75,19 @@ Deno.serve(async (req) => {
     // handled as a validation error below
   }
 
+  const userId = data.user?.id ?? null;
+  const model = Deno.env.get("OPENAI_MODEL") ?? DEFAULT_MODEL;
+  const base = { store: createStore(user, admin), now: () => new Date() };
   try {
-    const result = await handleChat(data.user?.id ?? null, body, {
-      store: createStore(user, admin),
-      llm: createLlmTurn(openaiKey, Deno.env.get("OPENAI_MODEL") ?? DEFAULT_MODEL),
-      now: () => new Date(),
-    });
+    if (wantsStream(req, body)) {
+      const streamed = await handleChatStream(userId, body, { ...base, llmStream: createLlmStream(openaiKey, model) });
+      return streamed.kind === "json"
+        ? respond(streamed.result.status, streamed.result.body)
+        : respondSse(streamed.events);
+    }
+    const result = await handleChat(userId, body, { ...base, llm: createLlmTurn(openaiKey, model) });
     return respond(result.status, result.body);
   } catch {
-    return respond(500, { error: "Something went wrong. Please try again." });
+    return respond(500, { error: GENERIC_ERROR });
   }
 });

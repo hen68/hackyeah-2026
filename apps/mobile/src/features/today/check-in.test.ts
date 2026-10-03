@@ -1,13 +1,14 @@
 import {
   answeredSeverities,
   dayStatus,
+  firstUnansweredIndex,
   greeting,
   isSeverity,
-  nextUnanswered,
+  minutesLeft,
+  minutesSpent,
   questionFor,
   severityLabel,
   toPlanSymptoms,
-  withEntry,
 } from '@/features/today/check-in';
 import type { DayData } from '@/lib/api/day';
 
@@ -26,19 +27,27 @@ describe('dayStatus', () => {
   });
 });
 
-describe('nextUnanswered', () => {
+describe('firstUnansweredIndex', () => {
   const plan = ['hot_flushes', 'night_sweats', 'sleep'];
 
-  test('returns the first symptom without an answer', () => {
-    expect(nextUnanswered(plan, { hot_flushes: 2 })).toBe('night_sweats');
+  test('opens the first question without an answer', () => {
+    expect(firstUnansweredIndex(plan, { hot_flushes: 2 })).toBe(1);
   });
 
-  test('skips the symptom that was just answered', () => {
-    expect(nextUnanswered(plan, {}, 'hot_flushes')).toBe('night_sweats');
+  test('opens the first question when everything is answered', () => {
+    expect(firstUnansweredIndex(plan, { hot_flushes: 1, night_sweats: 3, sleep: 5 })).toBe(0);
+  });
+});
+
+describe('time estimates', () => {
+  test('minutesLeft rounds up and never drops below one', () => {
+    expect(minutesLeft(0)).toBe(1);
+    expect(minutesLeft(7)).toBe(2);
   });
 
-  test('returns null when every symptom is answered', () => {
-    expect(nextUnanswered(plan, { hot_flushes: 1, night_sweats: 3, sleep: 5 })).toBeNull();
+  test('minutesSpent rounds to whole minutes, at least one', () => {
+    expect(minutesSpent(0, 10_000)).toBe(1);
+    expect(minutesSpent(0, 150_000)).toBe(3);
   });
 });
 
@@ -108,12 +117,5 @@ describe('day entries', () => {
   test('answeredSeverities keys catalog entries by code', () => {
     expect(answeredSeverities(day)).toEqual({ sleep: 2 });
     expect(answeredSeverities(undefined)).toEqual({});
-  });
-
-  test('withEntry replaces an existing rating without mutating the input', () => {
-    const next = withEntry(day, 'sleep', 5);
-    expect(answeredSeverities(next)).toEqual({ sleep: 5 });
-    expect(next.entries).toHaveLength(2);
-    expect(day.entries[0].severity).toBe(2);
   });
 });

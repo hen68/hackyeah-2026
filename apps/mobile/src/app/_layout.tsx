@@ -93,6 +93,7 @@ function RootNavigator() {
       <Stack.Protected guard={route === 'tabs'}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="chat" />
+        <Stack.Screen name="checkin-done" options={{ gestureEnabled: false }} />
         <Stack.Screen name="privacy" />
         <Stack.Screen name="help" />
       </Stack.Protected>
