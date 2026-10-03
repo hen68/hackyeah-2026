@@ -44,22 +44,53 @@ export const RECORD_TURN_TOOL = {
   },
 } as const;
 
+// Pieces of a streamed turn: `args` continues the `record_turn` JSON, `text` any plain content.
+export type LlmStreamChunk = { args: string; text: string };
+export type LlmStream = (input: ChatTurnInput) => AsyncIterable<LlmStreamChunk>;
+
+const MAX_COMPLETION_TOKENS = 2048;
+
+const request = (model: string, { system, messages }: ChatTurnInput) => ({
+  model,
+  max_completion_tokens: MAX_COMPLETION_TOKENS,
+  messages: [{ role: "system" as const, content: system }, ...messages],
+  tools: [RECORD_TURN_TOOL],
+  tool_choice: { type: "function" as const, function: { name: RECORD_TURN_TOOL.function.name } },
+});
+
+// Status and code only: provider messages can echo parts of the key.
+function logFailure(model: string, error: unknown) {
+  const e = error as { status?: number; code?: string; type?: string };
+  console.error("openai_call_failed", { model, status: e.status, code: e.code, type: e.type });
+}
+
+/** Same call as `createLlmTurn`, streamed: yields the tool arguments as the model writes them. */
+export function createLlmStream(apiKey: string, model: string = DEFAULT_MODEL): LlmStream {
+  const client = new OpenAI({ apiKey });
+  return async function* (input) {
+    try {
+      const stream = await client.chat.completions.create({ ...request(model, input), stream: true });
+      for await (const chunk of stream) {
+        const delta = chunk.choices[0]?.delta;
+        const args = delta?.tool_calls?.find((call) => call.index === 0)?.function?.arguments ?? "";
+        const text = delta?.content ?? "";
+        if (args || text) yield { args, text };
+      }
+    } catch (error) {
+      logFailure(model, error);
+      throw error;
+    }
+  };
+}
+
 export function createLlmTurn(apiKey: string, model: string = DEFAULT_MODEL): LlmTurn {
   const client = new OpenAI({ apiKey });
-  return async ({ system, messages }) => {
+  return async (input) => {
     let completion;
     try {
-      completion = await client.chat.completions.create({
-        model,
-        max_completion_tokens: 2048,
-        messages: [{ role: "system", content: system }, ...messages],
-        tools: [RECORD_TURN_TOOL],
-        tool_choice: { type: "function", function: { name: RECORD_TURN_TOOL.function.name } },
-      });
+      completion = await client.chat.completions.create(request(model, input));
     } catch (error) {
-      // Status and code only: provider messages can echo parts of the key.
-      const e = error as { status?: number; code?: string; type?: string };
-      console.error("openai_call_failed", { model, status: e.status, code: e.code, type: e.type });
+      logFailure(model, error);
       throw error;
     }
     const message = completion.choices[0]?.message;

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { checkReply, type GuardrailRule, SAFE_FALLBACK } from "./guardrails.ts";
 import { type Observation, parseTurn, replyText } from "./extract.ts";
-import type { LlmTurn } from "./llm.ts";
+import type { ChatTurnInput, ChatTurnOutput, LlmTurn } from "./llm.ts";
 import { buildSystemPrompt } from "./prompt.ts";
 
 export const LIMITS = {
@@ -19,6 +19,8 @@ export const RequestSchema = z.object({
   message: z.string().trim().min(1).max(2000),
   input_mode: z.enum(["text", "voice"]),
   local_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  // Opt-in token streaming (SSE). Older clients omit it and get one JSON reply.
+  stream: z.boolean().optional(),
 });
 
 export type ChatContext = {
@@ -64,7 +66,31 @@ export function normalizeTurns(history: ChatContext["history"]): ChatContext["hi
   return out;
 }
 
-export async function handleChat(userId: string | null, rawBody: unknown, deps: ChatDeps): Promise<ChatResult> {
+export const LLM_FAILED = "Digna could not answer just now. Please try again.";
+
+// A validated request whose user message is stored and whose prompt is ready for the model.
+export type PreparedTurn = {
+  userId: string;
+  message: string;
+  localDate: string;
+  userMessageId: string;
+  catalogCodes: ReadonlySet<string>;
+  llmInput: ChatTurnInput;
+};
+
+export type TurnReply = {
+  reply: string;
+  observations: Observation[];
+  message_id: string;
+  user_message_id: string;
+};
+
+/** Auth, validation, rate limits, storing the user message and building the prompt. */
+export async function prepareTurn(
+  userId: string | null,
+  rawBody: unknown,
+  deps: Pick<ChatDeps, "store" | "now">,
+): Promise<PreparedTurn | ChatResult> {
   if (!userId) return fail(401, "Please sign in again.");
 
   const parsed = RequestSchema.safeParse(rawBody);
@@ -101,36 +127,67 @@ export async function handleChat(userId: string | null, rawBody: unknown, deps: 
     else turns.push({ role: "user", content: message });
   }
 
-  let raw;
-  try {
-    raw = await deps.llm({ system, messages: turns });
-  } catch {
-    return fail(502, "Digna could not answer just now. Please try again.");
-  }
+  return {
+    userId,
+    message,
+    localDate: local_date,
+    userMessageId: saved.id,
+    catalogCodes: new Set(labels.keys()),
+    llmInput: { system, messages: turns },
+  };
+}
 
-  const turn = parseTurn(raw.toolInput, raw.text, new Set(labels.keys()), local_date);
-  if (!turn) return fail(502, "Digna could not answer just now. Please try again.");
+/**
+ * Parses the model output, applies the guardrail and saves the assistant turn. `trippedRule` is a
+ * rule the streaming gate already hit. Returns null when the model gave nothing usable.
+ */
+export async function finishTurn(
+  turn: PreparedTurn,
+  raw: ChatTurnOutput,
+  store: ChatStore,
+  trippedRule: GuardrailRule | null = null,
+): Promise<{ body: TurnReply; tripped: boolean } | null> {
+  const parsed = parseTurn(raw.toolInput, raw.text, turn.catalogCodes, turn.localDate);
+  if (!parsed) return null;
 
-  let reply = replyText(turn);
-  const verdict = checkReply(reply, message);
-  if (verdict.tripped) reply = SAFE_FALLBACK;
+  const verdict = checkReply(replyText(parsed), turn.message);
+  const rule = trippedRule ?? (verdict.tripped ? verdict.rule : null);
+  const reply = rule ? SAFE_FALLBACK : replyText(parsed);
 
   const assistant = await store.saveAssistantTurn({
-    patient_id: userId,
+    patient_id: turn.userId,
     content: reply,
-    local_date,
-    source_message_id: saved.id,
-    observations: turn.observations,
+    local_date: turn.localDate,
+    source_message_id: turn.userMessageId,
+    observations: parsed.observations,
   });
-  if (verdict.tripped) await store.recordGuardrail(userId, verdict.rule);
+  if (rule) await store.recordGuardrail(turn.userId, rule);
 
   return {
-    status: 200,
     body: {
       reply,
-      observations: turn.observations,
+      observations: parsed.observations,
       message_id: assistant.messageId,
-      user_message_id: saved.id,
+      user_message_id: turn.userMessageId,
     },
+    tripped: rule !== null,
   };
+}
+
+export const isChatResult = (value: PreparedTurn | ChatResult): value is ChatResult => "status" in value;
+
+export async function handleChat(userId: string | null, rawBody: unknown, deps: ChatDeps): Promise<ChatResult> {
+  const turn = await prepareTurn(userId, rawBody, deps);
+  if (isChatResult(turn)) return turn;
+
+  let raw;
+  try {
+    raw = await deps.llm(turn.llmInput);
+  } catch {
+    return fail(502, LLM_FAILED);
+  }
+
+  const finished = await finishTurn(turn, raw, deps.store);
+  if (!finished) return fail(502, LLM_FAILED);
+  return { status: 200, body: finished.body };
 }
