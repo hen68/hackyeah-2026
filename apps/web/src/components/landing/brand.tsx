@@ -28,11 +28,14 @@ export function Icon({ path, size = 26, strokeWidth = 2, className }: IconProps)
   );
 }
 
+/** Shared page width; every section aligns to the same left edge. */
+export const CONTAINER = "mx-auto w-full max-w-[1200px] px-6";
+
 const LOGO_PATH = "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM8 12.5c1.2 2 2.6 3 4 3s2.8-1 4-3";
 
 /** The Digna smile mark; always pair it with the "Digna" wordmark. */
 export function LogoMark({ size = 28 }: { size?: number }) {
-  return <Icon path={LOGO_PATH} size={size} strokeWidth={1.8} className="text-accent" />;
+  return <Icon path={LOGO_PATH} size={size} strokeWidth={1.8} className="text-rose" />;
 }
 
 const STORE_ICON_PATHS: Record<Store, string> = {
@@ -42,23 +45,16 @@ const STORE_ICON_PATHS: Record<Store, string> = {
 };
 
 /** Plain text, not links: the apps aren't in the stores yet. */
-export function StoreBadges({ variant = "dark" }: { variant?: "dark" | "light" }) {
-  const tone = variant === "dark" ? "bg-ink text-white" : "bg-white text-ink";
-
+export function StoreStatus({ className = "text-muted" }: { className?: string }) {
   return (
-    <ul className="flex flex-wrap gap-3">
+    <ul aria-label="Availability" className={`flex flex-wrap items-center gap-x-5 gap-y-2 text-base ${className}`}>
       {STORES.map((store) => (
-        <li
-          key={store}
-          className={`flex min-h-16 items-center gap-3 rounded-full px-6 py-2.5 ${tone}`}
-        >
-          <Icon path={STORE_ICON_PATHS[store]} strokeWidth={1.8} />
-          <span className="flex flex-col leading-tight">
-            <span className="text-sm font-medium">Coming soon</span>
-            <span className="text-[19px] font-bold">{store}</span>
-          </span>
+        <li key={store} className="flex items-center gap-2">
+          <Icon path={STORE_ICON_PATHS[store]} size={20} strokeWidth={1.6} />
+          {store}
         </li>
       ))}
+      <li className="font-semibold">Coming soon</li>
     </ul>
   );
 }
@@ -67,21 +63,16 @@ type SectionHeadingProps = {
   id: string;
   eyebrow: string;
   children: ReactNode;
-  eyebrowClassName?: string;
 };
 
-export function SectionHeading({
-  id,
-  eyebrow,
-  children,
-  eyebrowClassName = "text-accent-ink",
-}: SectionHeadingProps) {
+/** Small uppercase label over a serif heading; used by every section. */
+export function SectionHeading({ id, eyebrow, children }: SectionHeadingProps) {
   return (
-    <div className="flex max-w-[720px] flex-col gap-3.5">
-      <span className={`text-lg font-bold ${eyebrowClassName}`}>{eyebrow}</span>
+    <div className="flex max-w-[640px] flex-col gap-4">
+      <span className="text-base font-semibold tracking-[0.12em] text-rose uppercase">{eyebrow}</span>
       <h2
         id={id}
-        className="text-[clamp(32px,4vw,48px)] font-bold leading-[1.1] tracking-[-0.02em]"
+        className="font-serif text-[clamp(34px,4.2vw,52px)] leading-[1.08] font-normal tracking-[-0.015em]"
       >
         {children}
       </h2>

@@ -1,31 +1,29 @@
-import { Icon, SectionHeading } from "./brand";
+import { CONTAINER, Icon, SectionHeading } from "./brand";
 import { REPORT_DAYS, REPORT_POINTS, SAMPLE_FLAGS, SAMPLE_SYMPTOMS } from "./content";
 
 const CHECK_PATH = "M5 12.5l4.5 4.5L19 7.5";
 
 export function DoctorSection() {
   return (
-    <section id="doctor" aria-labelledby="doctor-title" className="bg-app-bg px-6 py-24">
-      <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-18 gap-y-12">
-        <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-5.5">
+    <section id="doctor" aria-labelledby="doctor-title" className="border-y border-line bg-sand">
+      <div className={`${CONTAINER} grid items-center gap-x-12 gap-y-14 py-[clamp(72px,10vw,128px)] lg:grid-cols-12`}>
+        <div className="flex min-w-0 flex-col gap-6 lg:col-span-6">
           <SectionHeading id="doctor-title" eyebrow="For your doctor">
             Walk in with the whole picture
           </SectionHeading>
-          <p className="text-xl leading-normal text-muted">
+          <p className="max-w-[48ch] text-xl leading-normal text-muted">
             Your pre-visit report sums up the last {REPORT_DAYS} days on one page, so the time
             with your doctor goes to what matters.
           </p>
-          <ul className="flex flex-col gap-3.5">
+          <ul className="flex flex-col">
             {REPORT_POINTS.map((point) => (
-              <li key={point} className="flex items-start gap-3.5 text-[19px] leading-[1.45]">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-teal-soft">
-                  <Icon path={CHECK_PATH} size={18} strokeWidth={2.6} className="text-teal-dark" />
-                </span>
-                <span className="pt-0.5">{point}</span>
+              <li key={point} className="flex items-start gap-3.5 border-t border-line py-3.5 text-[19px] leading-[1.45] last:border-b">
+                <Icon path={CHECK_PATH} size={22} strokeWidth={2} className="mt-0.5 shrink-0 text-rose" />
+                <span>{point}</span>
               </li>
             ))}
           </ul>
-          <p className="rounded-2xl border-2 border-border bg-white px-5 py-4 text-lg font-semibold leading-[1.45]">
+          <p className="border-l-2 border-rose pl-4 text-lg leading-[1.45] font-semibold">
             This is not a diagnosis. Only your doctor can confirm it.
           </p>
         </div>
@@ -44,12 +42,12 @@ function ReportPreview() {
   return (
     <figure
       aria-label="Example pre-visit report"
-      className="flex min-w-0 flex-[1_1_440px] flex-col gap-5 rounded-3xl bg-white p-7 shadow-[0_12px_40px_rgba(25,28,31,0.08)]"
+      className="flex min-w-0 flex-col gap-5 rounded-sm border border-line bg-white p-8 shadow-[0_30px_60px_-30px_rgba(25,28,31,0.25)] lg:col-span-6 lg:rotate-[0.6deg]"
     >
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b-3 border-report-line pb-4">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink pb-4">
         <div className="flex flex-col gap-1">
-          <span className="text-[15px] font-bold text-accent-ink">Digna</span>
-          <span className="text-2xl font-bold tracking-[-0.02em]">Pre-visit report</span>
+          <span className="text-[15px] font-semibold tracking-[0.12em] text-rose uppercase">Digna</span>
+          <span className="font-serif text-[28px] leading-tight">Pre-visit report</span>
         </div>
         <span className="text-right text-[15px] leading-normal text-muted">
           Anna K., 52
@@ -64,11 +62,11 @@ function ReportPreview() {
           {SAMPLE_FLAGS.map((flag, index) => (
             <li
               key={flag.symptom}
-              className="flex items-start gap-3 rounded-xl border-[1.5px] border-report-border px-3.5 py-3"
+              className="flex items-start gap-3 border-l-2 border-rose bg-rose-soft/60 px-3.5 py-3"
             >
               <span
                 aria-hidden="true"
-                className="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-white"
+                className="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-rose text-sm font-bold text-white"
               >
                 {index + 1}
               </span>
@@ -89,9 +87,9 @@ function ReportPreview() {
               className="grid grid-cols-[minmax(0,7fr)_minmax(0,10fr)_minmax(0,3fr)] items-center gap-3 text-[15px]"
             >
               <span className="font-semibold">{symptom.name}</span>
-              <span aria-hidden="true" className="h-2.5 rounded-full bg-report-track">
+              <span aria-hidden="true" className="h-2 rounded-full bg-sand">
                 <span
-                  className="block h-2.5 rounded-full bg-report-line"
+                  className="block h-2 rounded-full bg-rose"
                   style={{ width: toPercent(symptom.days) }}
                 />
               </span>
