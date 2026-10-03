@@ -16,20 +16,24 @@ const submitInputSchema = z.object({
   patientId: z.string().min(1),
   day: daySchema,
   answers: z.record(z.string().min(1), z.number().int().min(1).max(5)),
-  note: z.string().max(NOTE_MAX_LENGTH),
+  /** Omitted leaves the saved note as it is. */
+  note: z.string().max(NOTE_MAX_LENGTH).optional(),
 });
 
 export type SubmitCheckinInput = z.infer<typeof submitInputSchema>;
 
 /**
- * Saves a whole check-in: the day's row (with its note; blank clears it), then every answer in one
+ * Saves a whole check-in: the day's row (with its note when given; blank clears it), then every answer in one
  * upsert. Both writes are idempotent, so retrying after a partial failure converges.
  */
 export async function submitCheckin(input: SubmitCheckinInput): Promise<void> {
   const { patientId, day, answers, note } = submitInputSchema.parse(input);
   const { data, error } = await supabase
     .from('checkins')
-    .upsert({ patient_id: patientId, day, note: note.trim() || null }, { onConflict: 'patient_id,day' })
+    .upsert(
+      { patient_id: patientId, day, ...(note === undefined ? {} : { note: note.trim() || null }) },
+      { onConflict: 'patient_id,day' },
+    )
     .select('id')
     .single();
   if (error) throw error;

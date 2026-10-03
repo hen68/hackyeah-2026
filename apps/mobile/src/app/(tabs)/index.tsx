@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,6 +8,7 @@ import { PrimaryButton } from '@/components/ui/primary-button';
 import { useAuth } from '@/features/auth/auth-provider';
 import { answeredSeverities, greeting } from '@/features/today/check-in';
 import { CheckInCard } from '@/features/today/check-in-card';
+import { CheckInDoneCard } from '@/features/today/check-in-done-card';
 import { useCheckinDays, useDay, usePlanSymptoms } from '@/features/today/hooks';
 import { StreakCard } from '@/features/today/streak-card';
 import { watchSummary } from '@/features/today/watch';
@@ -36,12 +38,15 @@ export default function TodayScreen() {
   const dayQuery = useDay(day);
   const plan = usePlanSymptoms(patientId);
   const checkinDays = useCheckinDays(patientId);
-  // Background refetch errors keep the card (and the unsaved note) on screen.
+  /** Set while today's saved check-in is reopened; holds the question to start at. */
+  const [editing, setEditing] = useState<{ code: string | null } | null>(null);
+  // Background refetch errors keep the card (and its unsaved answers) on screen.
   const error = (!dayQuery.data && dayQuery.error) || (!plan.symptoms && plan.error) || null;
   const night = dayQuery.data?.wearable_nights[0] ?? null;
   const summary = night ? watchSummary(night) : null;
   const answered = answeredSeverities(dayQuery.data);
   const remaining = (plan.symptoms ?? []).filter((symptom) => answered[symptom.code] === undefined).length;
+  const isDone = isToday && (plan.symptoms?.length ?? 0) > 0 && remaining === 0;
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.scroll} contentInsetAdjustmentBehavior="never">
@@ -63,17 +68,22 @@ export default function TodayScreen() {
             <PrimaryButton label="Try again" onPress={() => Promise.all([dayQuery.refetch(), plan.refetch()])} />
           </View>
         ) : dayQuery.data && plan.symptoms ? (
-          <CheckInCard
-            // Remount when the saved day changes (e.g. chat added entries) so the draft starts from it.
-            key={`${day}:${JSON.stringify(answered)}:${dayQuery.data.checkin?.note ?? ''}`}
-            patientId={patientId}
-            day={day}
-            isToday={isToday}
-            symptoms={plan.symptoms}
-            answered={answered}
-            initialNote={dayQuery.data.checkin?.note ?? ''}
-            night={night}
-          />
+          isDone && !editing ? (
+            <CheckInDoneCard symptoms={plan.symptoms} answered={answered} onEdit={(code) => setEditing({ code })} />
+          ) : (
+            <CheckInCard
+              // Remount when the saved day changes (e.g. chat added entries) so the draft starts from it.
+              key={`${day}:${JSON.stringify(answered)}`}
+              patientId={patientId}
+              day={day}
+              isToday={isToday}
+              symptoms={plan.symptoms}
+              answered={answered}
+              night={night}
+              startCode={editing?.code ?? null}
+              onSaved={() => setEditing(null)}
+            />
+          )
         ) : (
           <ActivityIndicator accessibilityLabel="Loading your day" color={colors.accent} style={styles.status} />
         )}

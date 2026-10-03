@@ -51,7 +51,7 @@ export function useCheckinDays(patientId: string) {
   });
 }
 
-type SubmitVars = { answers: Readonly<Record<string, Severity>>; note: string };
+type SubmitVars = { answers: Readonly<Record<string, Severity>>; note?: string };
 
 /** Saves the whole check-in for `day`, then refreshes everything that shows it. */
 export function useSubmitCheckin(patientId: string, day: string) {

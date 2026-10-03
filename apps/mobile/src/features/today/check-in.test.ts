@@ -1,7 +1,6 @@
 import {
   answeredSeverities,
   dayStatus,
-  firstUnansweredIndex,
   greeting,
   isSeverity,
   minutesLeft,
@@ -24,18 +23,6 @@ describe('dayStatus', () => {
     [[1, 5], 'hard'],
   ] as const)('maps max severity of %j to %s', (severities, status) => {
     expect(dayStatus(severities)).toBe(status);
-  });
-});
-
-describe('firstUnansweredIndex', () => {
-  const plan = ['hot_flushes', 'night_sweats', 'sleep'];
-
-  test('opens the first question without an answer', () => {
-    expect(firstUnansweredIndex(plan, { hot_flushes: 2 })).toBe(1);
-  });
-
-  test('opens the first question when everything is answered', () => {
-    expect(firstUnansweredIndex(plan, { hot_flushes: 1, night_sweats: 3, sleep: 5 })).toBe(0);
   });
 });
 

@@ -29,6 +29,12 @@ const LEGEND_SWATCH = 20;
 const CELL_FLOWER = 16;
 /** Lightest first: the month reads as a garden, never as a row of warnings. */
 const TILE_STATUSES = ['good', 'okay', 'hard'] as const;
+/** Always two lines so the three tiles line up. */
+const TILE_LABELS: Record<(typeof TILE_STATUSES)[number], string> = {
+  good: 'Good\ndays',
+  okay: 'Okay\ndays',
+  hard: 'Tougher\ndays',
+};
 
 function currentMonth(): MonthRef {
   const now = new Date();
@@ -155,7 +161,9 @@ function SummaryCard({ title, days, today }: { title: string; days: readonly Cal
             accessibilityLabel={`${summary[status]} ${DAY_STATUS_LABELS[status].toLowerCase()}s`}
             style={[styles.tile, { backgroundColor: dayStatusColors[status] }]}>
             <Text style={styles.tileCount}>{summary[status]}</Text>
-            <Text style={styles.tileLabel}>{`${DAY_STATUS_LABELS[status].toLowerCase()}s`}</Text>
+            <Text numberOfLines={2} style={styles.tileLabel}>
+              {TILE_LABELS[status]}
+            </Text>
           </View>
         ))}
       </View>
