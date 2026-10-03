@@ -187,7 +187,7 @@ function DayCell({ date, dayNumber, monthLabel, row, today }: DayCellProps) {
 
   return (
     <Pressable
-      onPress={() => router.push({ pathname: '/day/[date]', params: { date } })}
+      onPress={() => router.push({ pathname: '/day/[date]', params: { date, from: 'calendar' } })}
       accessibilityRole="button"
       accessibilityLabel={label}
       style={[styles.cell, styles.dayCell, { backgroundColor: dayStatusColors[status] }, isToday && styles.today]}>

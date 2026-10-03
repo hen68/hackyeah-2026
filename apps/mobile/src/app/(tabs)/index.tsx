@@ -40,7 +40,7 @@ export default function TodayScreen() {
   const summary = night ? watchSummary(night) : null;
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.scroll}>
+    <ScrollView style={styles.screen} contentContainerStyle={styles.scroll} contentInsetAdjustmentBehavior="never">
       <SafeAreaView edges={['top']} style={styles.hero}>
         <View style={styles.heading}>
           <Text style={styles.date}>{formatLongDate(day)}</Text>

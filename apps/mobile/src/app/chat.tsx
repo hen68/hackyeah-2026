@@ -69,7 +69,7 @@ export default function ChatScreen() {
   return (
     <View style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.header}>
-        <BackButton />
+        <BackButton variant="plain" />
         <View style={styles.avatar}>
           <Icon name="smile" size={AVATAR_ICON} strokeWidth={AVATAR_STROKE} />
         </View>

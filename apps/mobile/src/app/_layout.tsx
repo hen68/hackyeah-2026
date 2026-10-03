@@ -92,8 +92,7 @@ function RootNavigator() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={route === 'tabs'}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="chat" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="day/[date]" />
+        <Stack.Screen name="chat" />
         <Stack.Screen name="privacy" />
         <Stack.Screen name="help" />
       </Stack.Protected>

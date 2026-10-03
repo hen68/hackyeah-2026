@@ -41,7 +41,7 @@ function loggedRows(day: DayData, labelFor: (code: string) => string): LoggedRow
 
 /** Artboard DayDetail. */
 export default function DayDetailScreen() {
-  const { date = '' } = useLocalSearchParams<{ date: string }>();
+  const { date = '', from } = useLocalSearchParams<{ date: string; from?: string }>();
   const isValid = parseLocalDate(date) !== null;
   const isFuture = date > toLocalDateString();
   const dayQuery = useDay(date);
@@ -51,17 +51,20 @@ export default function DayDetailScreen() {
   const day = dayQuery.data;
   const status = dayStatus(day?.entries.map((entry) => entry.severity) ?? []);
   const night = day?.wearable_nights[0];
+  const goBack = () => (router.canGoBack() ? router.back() : router.navigate('/calendar'));
 
   return (
     <View style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.header}>
-        <BackButton />
-        <Text accessibilityRole="header" style={styles.title}>
-          {isValid ? formatLongDate(date) : 'Day not found'}
-        </Text>
-        {day && (
-          <Text style={[styles.pill, { backgroundColor: dayStatusColors[status] }]}>{DAY_STATUS_LABELS[status]}</Text>
-        )}
+        <BackButton label={from === 'calendar' ? 'Calendar' : 'Back'} onPress={goBack} />
+        <View style={styles.headerText}>
+          <Text accessibilityRole="header" style={styles.title}>
+            {isValid ? formatLongDate(date) : 'Day not found'}
+          </Text>
+          {day && (
+            <Text style={[styles.pill, { backgroundColor: dayStatusColors[status] }]}>{DAY_STATUS_LABELS[status]}</Text>
+          )}
+        </View>
       </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.body}>
@@ -161,10 +164,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.divider,
-    paddingHorizontal: spacing.lg,
+    paddingLeft: spacing.sm,
+    paddingRight: spacing.lg,
     paddingBottom: spacing.lg,
     gap: 10,
   },
+  headerText: { paddingHorizontal: spacing.sm, gap: 10 },
   title: { ...type.title, fontSize: 30, lineHeight: 35, color: colors.text },
   pill: {
     ...type.label,

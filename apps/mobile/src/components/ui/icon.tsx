@@ -29,6 +29,11 @@ const ICONS = {
     { kind: 'circle', cx: 12, cy: 12, r: 9 },
     { kind: 'path', d: 'M8 12.5c1.2 2 2.6 3 4 3s2.8-1 4-3' },
   ],
+  home: [{ kind: 'path', d: 'M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z' }],
+  calendar: [
+    { kind: 'rect', x: 4, y: 5, width: 16, height: 16, rx: 3 },
+    { kind: 'path', d: 'M8 3v4M16 3v4M4 10h16' },
+  ],
   profile: [
     { kind: 'circle', cx: 12, cy: 8, r: 4 },
     { kind: 'path', d: 'M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6' },
