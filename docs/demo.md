@@ -34,13 +34,123 @@ Database checks run against the hosted project and roll back: `supabase/tests/sm
 6. **Day detail:** what you logged, the watch night, and your note and chat messages.
 7. **Profile:** watch toggle, "Get a code for my doctor" (8 characters, 24 h), daily reminder, Download my data, Privacy, Help, sign out.
 
-## Not ready yet
+## Demo data and definition of done
 
-- **Edge functions:** `chat` and `context-check` are not deployed yet (backend Steps 3–4). Until then, Chat shows "Digna can’t chat right now", and onboarding skips the free text.
-- **Definition of done:** the DoD scenario (the clinician's context check returning at least one missing topic, one discrepancy and one change, with evidence) needs `context-check`. Paste its captured `get_context_check` JSON here once it runs:
+`supabase/seed.sql` creates patient **Anna** (`anna@digna.test`) and clinician **Dr Demo** (`dr.demo@digna.test`), both with password `DignaDemo2026`. It also adds a care link, 30 days of check-ins, a chat turn, watch nights and today's interview (`6f1c2a4e-8b3d-4c7a-9e21-0d5b7a3c9f10`). A local `supabase db reset` applies it; on the hosted project it was run once by hand. Dates are relative to the run day, so to re-seed on a later day first delete both users from `auth.users` (this cascades).
+
+The DoD scenario: Dr Demo calls `context-check` with `{"interview_id": "6f1c2a4e-8b3d-4c7a-9e21-0d5b7a3c9f10"}` (add `"refresh": true` to recompute). Anna gets a 404 for the same call and reads no insights, interviews or context checks. Example `get_context_check` output, captured on the hosted project (dates follow the seed's run day):
 
 ```json
-TODO: captured get_context_check output
+{
+  "insights": [
+    {
+      "id": "89e144c8-5f89-4596-84dc-508e84f542b3",
+      "kind": "discrepancy",
+      "rank": 1,
+      "title": "Możliwa rozbieżność",
+      "summary": "8/14 ostatnich check-inów wskazywało silne nasilenie objawu „Sleep trouble”, a w rozmowie pacjentka mówiła o poprawie. Do doprecyzowania.",
+      "evidence": {
+        "date_to": "2026-10-02",
+        "sources": [
+          "checkin"
+        ],
+        "excerpts": [
+          {
+            "date": "2026-10-01",
+            "text": "Slept badly, awake from 3am.",
+            "source": "checkin"
+          },
+          {
+            "date": "2026-09-25",
+            "text": "Slept badly, awake from 3am.",
+            "source": "checkin"
+          },
+          {
+            "date": "2026-09-20",
+            "text": "Slept badly, awake from 3am.",
+            "source": "checkin"
+          }
+        ],
+        "date_from": "2026-09-20",
+        "entry_count": 8
+      },
+      "feedback": null,
+      "custom_label": null,
+      "symptom_code": "sleep"
+    },
+    {
+      "id": "00b1e39e-769c-451a-a640-cc4b78df9048",
+      "kind": "missing_topic",
+      "rank": 2,
+      "title": "Temat nieporuszony",
+      "summary": "Objaw „Headache” występował w 7 z ostatnich 30 dni, a nie pojawił się w rozmowie. Do doprecyzowania.",
+      "evidence": {
+        "date_to": "2026-09-30",
+        "sources": [
+          "checkin"
+        ],
+        "excerpts": [
+          {
+            "date": "2026-09-21",
+            "text": "Headache by the afternoon.",
+            "source": "checkin"
+          },
+          {
+            "date": "2026-09-11",
+            "text": "Headache by the afternoon.",
+            "source": "checkin"
+          }
+        ],
+        "date_from": "2026-09-06",
+        "entry_count": 7
+      },
+      "feedback": null,
+      "custom_label": null,
+      "symptom_code": "headache"
+    },
+    {
+      "id": "5600fdbb-b43b-4f0b-9ee1-b7ebaf5b7643",
+      "kind": "significant_change",
+      "rank": 3,
+      "title": "Istotna zmiana",
+      "summary": "Nasilenie objawu „Low energy” wzrosło z 1.5 do 3.1. Do doprecyzowania.",
+      "evidence": {
+        "date_to": "2026-10-02",
+        "sources": [
+          "checkin"
+        ],
+        "excerpts": [
+          {
+            "date": "2026-10-01",
+            "text": "Slept badly, awake from 3am.",
+            "source": "checkin"
+          },
+          {
+            "date": "2026-09-25",
+            "text": "Slept badly, awake from 3am.",
+            "source": "checkin"
+          },
+          {
+            "date": "2026-09-21",
+            "text": "Headache by the afternoon.",
+            "source": "checkin"
+          }
+        ],
+        "date_from": "2026-09-03",
+        "entry_count": 30
+      },
+      "feedback": null,
+      "custom_label": null,
+      "symptom_code": "energy"
+    }
+  ],
+  "context_check": {
+    "id": "a6a043eb-16df-44dc-b3ba-94809bf3201b",
+    "created_at": "2026-10-03T21:59:59.763079+00:00",
+    "patient_id": "00000000-0000-0000-0000-0000000000a1",
+    "period_end": "2026-10-02",
+    "interview_id": "6f1c2a4e-8b3d-4c7a-9e21-0d5b7a3c9f10",
+    "period_start": "2026-09-03"
+  }
+}
 ```
-
-- **Demo seed:** `supabase/seed.sql` (patient "Anna", clinician, 30 days of history) is for a local `supabase db reset` only and is not applied to the hosted project.
