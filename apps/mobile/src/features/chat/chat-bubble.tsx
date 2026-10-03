@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from '@/components/ui/icon';
-import { chipDotColor, chipText, type ChatItem } from '@/features/chat/thread';
+import { addedTitle, chipDotColor, chipText, type ChatItem } from '@/features/chat/thread';
 import { colors, radii, sizes, spacing, type } from '@/theme/tokens';
 
 const BUBBLE_RADIUS = 22;
@@ -11,7 +11,6 @@ const DOT_SIZE = 12;
 const SPOKEN_ICON = 14;
 const SPOKEN_TEXT = '#FFE3EA';
 const SENDING_OPACITY = 0.7;
-const ADDED_TITLE = 'I’ve added this to today:';
 
 type ChatBubbleProps = {
   item: ChatItem;
@@ -59,7 +58,7 @@ export function ChatBubble({ item, labelFor, onRetry, onChangeDay }: ChatBubbleP
       <Text style={styles.text}>{item.content}</Text>
       {firstDay && (
         <View style={styles.added}>
-          <Text style={styles.text}>{ADDED_TITLE}</Text>
+          <Text style={styles.text}>{addedTitle(item)}</Text>
           {item.observations.map((observation) => (
             <View key={observation.key} style={styles.chip}>
               <View style={[styles.dot, { backgroundColor: chipDotColor(observation.severity) }]} />

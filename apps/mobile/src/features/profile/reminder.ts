@@ -14,10 +14,15 @@ export async function isReminderOn(): Promise<boolean> {
   return scheduled.some((request) => request.identifier === REMINDER_ID);
 }
 
+/** The reminder is device-wide, so it must not outlive the signed-in account. */
+export function cancelReminder(): Promise<void> {
+  return Notifications.cancelScheduledNotificationAsync(REMINDER_ID);
+}
+
 /** Schedules or cancels the local daily check-in reminder; asks for permission when turning it on. */
 export async function setReminder(isOn: boolean): Promise<ReminderResult> {
   if (!isOn) {
-    await Notifications.cancelScheduledNotificationAsync(REMINDER_ID);
+    await cancelReminder();
     return 'off';
   }
   const permission = await Notifications.requestPermissionsAsync();

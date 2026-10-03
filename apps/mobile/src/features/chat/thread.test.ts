@@ -1,4 +1,5 @@
 import {
+  addedTitle,
   assistantItem,
   chipDotColor,
   chipText,
@@ -118,5 +119,23 @@ describe('chipDotColor', () => {
   test('uses the severity colour, grey when unrated', () => {
     expect(chipDotColor(5)).toBe(severityColors[5]);
     expect(chipDotColor(null)).not.toBe(severityColors[5]);
+  });
+});
+
+describe('addedTitle', () => {
+  test('says today only when every chip is on the message day', () => {
+    expect(addedTitle({ localDate: DAY, observations: [chip({})] })).toBe('I’ve added this to today:');
+  });
+
+  test('names a single other day', () => {
+    expect(addedTitle({ localDate: DAY, observations: [chip({ observedOn: '2026-10-02' })] })).toBe(
+      'I’ve added this to Friday, 2 October:',
+    );
+  });
+
+  test('stays generic across several days', () => {
+    expect(addedTitle({ localDate: DAY, observations: [chip({}), chip({ observedOn: '2026-10-02' })] })).toBe(
+      'I’ve added this:',
+    );
   });
 });

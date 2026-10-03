@@ -55,7 +55,8 @@ export default function ChatScreen() {
 
   const labelFor = (code: string) => catalog.data?.find((item) => item.code === code)?.label ?? code;
   const message = draft.trim();
-  const canSend = message.length > 0 && !send.isPending;
+  // Sending before history loads would overwrite the cached thread with just the new bubble.
+  const canSend = message.length > 0 && !send.isPending && thread.isSuccess;
 
   const handleSend = () => {
     if (!canSend) return;

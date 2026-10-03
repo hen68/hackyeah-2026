@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 
 import { createAuthService, type AuthService } from '@/features/auth/auth-service';
 import { useProfile } from '@/features/profile/hooks';
+import { cancelReminder } from '@/features/profile/reminder';
 import type { Profile } from '@/lib/api/profile';
 import { supabase } from '@/lib/supabase';
 
@@ -32,7 +33,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Fires INITIAL_SESSION first, so this also restores the stored session.
     const { data } = supabase.auth.onAuthStateChange((event, nextSession) => {
       setSession(nextSession);
-      if (event === 'SIGNED_OUT') queryClient.clear();
+      if (event === 'SIGNED_OUT') {
+        queryClient.clear();
+        // Best effort: a failure only means one more reminder on this device.
+        cancelReminder().catch(() => undefined);
+      }
     });
     return () => data.subscription.unsubscribe();
   }, [queryClient]);

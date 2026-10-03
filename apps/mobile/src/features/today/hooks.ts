@@ -20,6 +20,7 @@ export const CALENDAR_KEY = ['calendar'] as const;
 
 /** Entry and note writes for one day run one at a time, so they land in the order they were made. */
 const checkinScope = (day: string) => ({ id: `checkin-${day}` });
+const entryMutationKey = (day: string) => ['save-entry', day] as const;
 
 export function useDay(day: string) {
   return useQuery({ queryKey: dayKeys.detail(day), queryFn: () => getDay(day), enabled: parseLocalDate(day) !== null });
@@ -50,7 +51,7 @@ type EntryVars = { symptomCode: string; severity: Severity };
 export function useSaveEntry(patientId: string, day: string) {
   const queryClient = useQueryClient();
   const key = dayKeys.detail(day);
-  const mutationKey = ['save-entry', day];
+  const mutationKey = entryMutationKey(day);
   return useMutation({
     mutationKey,
     scope: checkinScope(day),
@@ -84,6 +85,8 @@ export function useNoteAutosave(patientId: string, day: string, initialNote: str
     mutationFn: (text: string) => saveNote({ patientId, day, note: text }),
     onSuccess: (_data, text) => {
       if (pendingNote.current === text) pendingNote.current = null;
+      // Queued picks keep their optimistic entries; the last pick's own refetch brings the note too.
+      if (queryClient.isMutating({ mutationKey: entryMutationKey(day) }) > 0) return;
       queryClient.invalidateQueries({ queryKey: dayKeys.detail(day) });
     },
     onError: () => {
