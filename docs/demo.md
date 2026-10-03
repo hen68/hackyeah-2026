@@ -36,9 +36,9 @@ Database checks run against the hosted project and roll back: `supabase/tests/sm
 
 ## Demo data and definition of done
 
-`supabase/seed.sql` creates patient **Anna** (`anna@digna.test`) and clinician **Dr Demo** (`dr.demo@digna.test`), both with password `DignaDemo2026`. It also adds a care link, 30 days of check-ins, a chat turn, watch nights and today's interview (`6f1c2a4e-8b3d-4c7a-9e21-0d5b7a3c9f10`). A local `supabase db reset` applies it; on the hosted project it was run once by hand (it is idempotent).
+`supabase/seed.sql` creates patient **Anna** (`anna@digna.test`) and clinician **Dr Demo** (`dr.demo@digna.test`), both with password `DignaDemo2026`. It also adds a care link, 30 days of check-ins, a chat turn, watch nights and today's interview (`6f1c2a4e-8b3d-4c7a-9e21-0d5b7a3c9f10`). A local `supabase db reset` applies it; on the hosted project it was run once by hand. Dates are relative to the run day, so to re-seed on a later day first delete both users from `auth.users` (this cascades).
 
-The DoD scenario: Dr Demo calls `context-check` with `{"interview_id": "6f1c2a4e-8b3d-4c7a-9e21-0d5b7a3c9f10"}` (add `"refresh": true` to recompute). Anna gets a 404 for the same call and reads no insights, interviews or context checks. Captured `get_context_check` output on the hosted project (2026-10-04):
+The DoD scenario: Dr Demo calls `context-check` with `{"interview_id": "6f1c2a4e-8b3d-4c7a-9e21-0d5b7a3c9f10"}` (add `"refresh": true` to recompute). Anna gets a 404 for the same call and reads no insights, interviews or context checks. Example `get_context_check` output, captured on the hosted project (dates follow the seed's run day):
 
 ```json
 {

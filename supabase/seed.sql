@@ -1,5 +1,6 @@
 -- Demo data: patient Anna and clinician Dr Demo, 30 days of history relative to today, one interview.
--- Local: applied by `supabase db reset`. Hosted: run once by hand (idempotent; skips existing rows).
+-- Local: applied by `supabase db reset`. Hosted: run once by hand. Re-running the same day is a no-op;
+-- on a later day, first delete both users from auth.users (cascades), or the 30-day shape breaks.
 -- Logins: anna@digna.test / DignaDemo2026 and dr.demo@digna.test / DignaDemo2026.
 -- The data is shaped so `context-check` on the interview returns exactly three insights:
 --   discrepancy (sleep severe on 8 of the last 14 check-ins, interview says it improved),
@@ -17,7 +18,7 @@ from (values
   ('00000000-0000-0000-0000-0000000000a1'::uuid, 'anna@digna.test'),
   ('00000000-0000-0000-0000-0000000000b1'::uuid, 'dr.demo@digna.test')
 ) as u(id, email)
-on conflict (id) do nothing;
+on conflict do nothing; -- also skips an existing signup with the same email
 
 insert into auth.identities (provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
 select u.id::text, u.id, jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true),
