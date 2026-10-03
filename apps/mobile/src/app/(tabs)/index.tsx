@@ -88,14 +88,6 @@ export default function TodayScreen() {
       </SafeAreaView>
 
       <View style={styles.body}>
-        {isEditing && (
-          <Pressable
-            onPress={() => router.setParams({ date: undefined })}
-            accessibilityRole="button"
-            style={styles.backToToday}>
-            <Text style={styles.link}>Back to today</Text>
-          </Pressable>
-        )}
         <Pressable
           onPress={() => router.push('/chat')}
           accessibilityRole="button"
@@ -110,6 +102,14 @@ export default function TodayScreen() {
           </View>
         </Pressable>
 
+        {isEditing && (
+          <Pressable
+            onPress={() => router.setParams({ date: undefined })}
+            accessibilityRole="button"
+            style={styles.backToToday}>
+            <Text style={styles.link}>Back to today</Text>
+          </Pressable>
+        )}
         {summary && (
           <Pressable
             onPress={() => router.push({ pathname: '/day/[date]', params: { date: day } })}
@@ -138,15 +138,15 @@ const styles = StyleSheet.create({
     experimental_backgroundImage: `linear-gradient(180deg, ${colors.heroGradient[0]} 0%, ${colors.heroGradient[1]} 100%)`,
     paddingHorizontal: spacing.lg,
     paddingTop: HERO_TOP_PADDING,
-    paddingBottom: spacing.xl,
-    gap: 18,
+    paddingBottom: spacing.lg,
+    gap: 14,
   },
   heading: { gap: spacing.xxs, paddingHorizontal: spacing.xxs },
   date: { ...type.label, fontSize: 18, color: colors.heroText },
   greeting: { ...type.title, fontSize: 30, lineHeight: 35, color: colors.text },
   status: { minHeight: 200, justifyContent: 'center', gap: spacing.md },
   errorText: { ...type.body, color: colors.text, textAlign: 'center' },
-  body: { padding: spacing.lg, paddingTop: spacing.xl, gap: 18 },
+  body: { padding: spacing.lg, paddingTop: spacing.md, gap: 18 },
   backToToday: { minHeight: sizes.minTouchTarget, justifyContent: 'center', alignSelf: 'flex-start' },
   link: { ...type.option, fontSize: 19, color: colors.accent },
   chatCard: {

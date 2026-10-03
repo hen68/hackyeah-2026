@@ -2,6 +2,8 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { colors, radii, sizes, spacing, type } from '@/theme/tokens';
 
+const PRESSED_SCALE = 0.96;
+
 type ChipProps = {
   label: string;
   onPress: () => void;
@@ -15,7 +17,7 @@ export function Chip({ label, onPress, isSelected = false }: ChipProps) {
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ selected: isSelected }}
-      style={[styles.chip, isSelected ? styles.selected : styles.unselected]}>
+      style={({ pressed }) => [styles.chip, isSelected ? styles.selected : styles.unselected, pressed && styles.pressed]}>
       <Text style={styles.label}>{label}</Text>
     </Pressable>
   );
@@ -32,5 +34,10 @@ const styles = StyleSheet.create({
   },
   selected: { borderColor: colors.accent, backgroundColor: colors.softPinkStrong },
   unselected: { borderColor: colors.border, backgroundColor: colors.surface },
+  pressed: {
+    borderColor: colors.pressedOutline,
+    backgroundColor: colors.softPinkStrong,
+    transform: [{ scale: PRESSED_SCALE }],
+  },
   label: { ...type.chip, color: colors.text },
 });

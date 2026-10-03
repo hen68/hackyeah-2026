@@ -20,46 +20,53 @@ type SeverityPickerProps = {
   accessibilityLabel: string;
 };
 
-/** 1–5 severity scale from the Today artboard: numbered dot + label per row. */
+const PRESSED_SCALE = 0.96;
+
+/** 1–5 severity scale as one row of numbered tiles, with the scale ends labelled underneath. */
 export function SeverityPicker({ value, onChange, accessibilityLabel }: SeverityPickerProps) {
   return (
-    <View accessibilityRole="radiogroup" accessibilityLabel={accessibilityLabel} style={styles.group}>
-      {SEVERITY_VALUES.map((severity) => {
-        const isSelected = value === severity;
-        const label = severityLabels[severity];
-        return (
-          <Pressable
-            key={severity}
-            onPress={() => onChange(severity)}
-            accessibilityRole="radio"
-            accessibilityLabel={`${severity}, ${label}`}
-            accessibilityState={{ selected: isSelected }}
-            style={[styles.row, isSelected ? styles.selected : styles.unselected]}>
-            <View style={[styles.dot, { backgroundColor: severityColors[severity] }]}>
-              <Text style={[styles.dotText, { color: severityTextColors[severity] }]}>{severity}</Text>
-            </View>
-            <Text style={styles.label}>{label}</Text>
-          </Pressable>
-        );
-      })}
+    <View style={styles.group}>
+      <View accessibilityRole="radiogroup" accessibilityLabel={accessibilityLabel} style={styles.row}>
+        {SEVERITY_VALUES.map((severity) => {
+          const isSelected = value === severity;
+          return (
+            <Pressable
+              key={severity}
+              onPress={() => onChange(severity)}
+              accessibilityRole="radio"
+              accessibilityLabel={`${severity}, ${severityLabels[severity]}`}
+              accessibilityState={{ selected: isSelected }}
+              style={styles.tile}>
+              {({ pressed }) => (
+                <View
+                  style={[
+                    styles.dot,
+                    { backgroundColor: severityColors[severity] },
+                    isSelected && styles.selected,
+                    pressed && styles.pressed,
+                  ]}>
+                  <Text style={[styles.dotText, { color: severityTextColors[severity] }]}>{severity}</Text>
+                </View>
+              )}
+            </Pressable>
+          );
+        })}
+      </View>
+      <View importantForAccessibility="no-hide-descendants" accessibilityElementsHidden style={styles.ends}>
+        <Text style={styles.end}>{severityLabels[1]}</Text>
+        <Text style={styles.end}>{severityLabels[5]}</Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  group: { gap: spacing.sm },
-  row: {
-    minHeight: sizes.severityRowHeight,
-    paddingHorizontal: spacing.md,
-    borderRadius: radii.optionSmall,
-    backgroundColor: colors.surface,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  // 1px less padding offsets the thicker border so content doesn't shift on select.
-  selected: { borderWidth: 3, borderColor: colors.selectedOutline, paddingHorizontal: spacing.md - 1 },
-  unselected: { borderWidth: 2, borderColor: colors.border },
+  group: { gap: spacing.xs },
+  row: { flexDirection: 'row', gap: spacing.xs },
+  tile: { flex: 1, height: sizes.severityTileHeight, alignItems: 'center', justifyContent: 'center' },
+  // The answer you already gave (e.g. when changing a day) keeps a dark ring.
+  selected: { borderWidth: 3, borderColor: colors.selectedOutline },
+  pressed: { borderWidth: 3, borderColor: colors.pressedOutline, transform: [{ scale: PRESSED_SCALE }] },
   dot: {
     width: sizes.severityDot,
     height: sizes.severityDot,
@@ -67,6 +74,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dotText: { ...type.badge, color: colors.textOnAccent },
-  label: { ...type.severity, color: colors.text },
+  dotText: { ...type.severity, color: colors.textOnAccent },
+  ends: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.xxs },
+  end: { ...type.label, color: colors.textMuted },
 });

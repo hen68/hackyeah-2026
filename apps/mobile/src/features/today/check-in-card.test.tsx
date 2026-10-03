@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
-import { CheckInCard } from '@/features/today/check-in-card';
+import { ADVANCE_DELAY_MS, CheckInCard } from '@/features/today/check-in-card';
 
 const mockMutateAsync = jest.fn();
 const mockPush = jest.fn();
@@ -29,9 +29,22 @@ function renderCard(answered: Record<string, number> = {}, symptoms = SYMPTOMS) 
   );
 }
 
+/** Taps an answer and waits out the pause that keeps it highlighted. */
+async function pick(name: string) {
+  await fireEvent.press(screen.getByRole('radio', { name }));
+  await act(async () => {
+    jest.advanceTimersByTime(ADVANCE_DELAY_MS);
+  });
+}
+
 beforeEach(() => {
+  jest.useFakeTimers();
   mockMutateAsync.mockReset().mockResolvedValue(undefined);
   mockPush.mockReset();
+});
+
+afterEach(() => {
+  jest.useRealTimers();
 });
 
 describe('CheckInCard', () => {
@@ -43,7 +56,7 @@ describe('CheckInCard', () => {
 
   test('picking an answer moves to the next question', async () => {
     await renderCard();
-    await fireEvent.press(screen.getByRole('radio', { name: '3, Moderate' }));
+    await pick('3, Moderate');
 
     expect(screen.getByText('How much did you sweat at night?')).toBeOnTheScreen();
     expect(screen.getByText('2 of 2')).toBeOnTheScreen();
@@ -52,10 +65,8 @@ describe('CheckInCard', () => {
 
   test('the last answer saves everything and opens the success screen', async () => {
     await renderCard();
-    await fireEvent.press(screen.getByRole('radio', { name: '2, Mild' }));
-    await act(async () => {
-      fireEvent.press(screen.getByRole('radio', { name: '4, Strong' }));
-    });
+    await pick('2, Mild');
+    await pick('4, Strong');
 
     expect(mockMutateAsync).toHaveBeenCalledWith({ answers: { hot_flushes: 2, night_sweats: 4 } });
     expect(mockPush).toHaveBeenCalledWith({
@@ -68,10 +79,8 @@ describe('CheckInCard', () => {
     await renderCard({ hot_flushes: 1, night_sweats: 2 });
     expect(screen.getByRole('radio', { name: '1, None' })).toBeSelected();
 
-    await fireEvent.press(screen.getByRole('radio', { name: '1, None' }));
-    await act(async () => {
-      fireEvent.press(screen.getByRole('radio', { name: '5, Severe' }));
-    });
+    await pick('1, None');
+    await pick('5, Severe');
 
     expect(mockMutateAsync).toHaveBeenCalledWith({ answers: { hot_flushes: 1, night_sweats: 5 } });
     expect(mockPush).toHaveBeenCalledWith({ pathname: '/checkin-done', params: { day: '2026-10-20' } });
@@ -81,26 +90,36 @@ describe('CheckInCard', () => {
     let resolve = () => {};
     mockMutateAsync.mockImplementation(() => new Promise<void>((done) => (resolve = done)));
     await renderCard({ hot_flushes: 1 });
-    await fireEvent.press(screen.getByRole('radio', { name: '1, None' }));
+    await pick('1, None');
 
-    await act(async () => {
-      fireEvent.press(screen.getByRole('radio', { name: '2, Mild' }));
-      fireEvent.press(screen.getByRole('radio', { name: '3, Moderate' }));
-    });
+    await fireEvent.press(screen.getByRole('radio', { name: '2, Mild' }));
+    await pick('3, Moderate');
     await act(async () => resolve());
 
     expect(mockMutateAsync).toHaveBeenCalledTimes(1);
+    expect(mockMutateAsync).toHaveBeenCalledWith({ answers: { hot_flushes: 1, night_sweats: 2 } });
   });
 
   test('does not navigate when saving fails', async () => {
     mockMutateAsync.mockRejectedValue(new Error('offline'));
     await renderCard({ hot_flushes: 1 });
-    await fireEvent.press(screen.getByRole('radio', { name: '1, None' }));
-    await act(async () => {
-      fireEvent.press(screen.getByRole('radio', { name: '1, None' }));
-    });
+    await pick('1, None');
+    await pick('1, None');
 
     expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  test('keeps the picked answer highlighted until the next question opens', async () => {
+    await renderCard();
+    await fireEvent.press(screen.getByRole('radio', { name: '3, Moderate' }));
+
+    expect(screen.getByRole('radio', { name: '3, Moderate' })).toBeSelected();
+    expect(screen.getByText('1 of 2')).toBeOnTheScreen();
+
+    await act(async () => {
+      jest.advanceTimersByTime(ADVANCE_DELAY_MS);
+    });
+    expect(screen.getByText('2 of 2')).toBeOnTheScreen();
   });
 
   test('shows an empty state when the plan has no symptoms', async () => {

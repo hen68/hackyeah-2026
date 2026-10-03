@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '@/components/ui/card';
@@ -22,6 +22,9 @@ type CheckInCardProps = {
   /** Called once the check-in is saved, before the success screen opens. */
   onSaved?: () => void;
 };
+
+/** Long enough to see the picked answer highlighted before the next question replaces it. */
+export const ADVANCE_DELAY_MS = 250;
 
 function toSeverities(answered: Readonly<Record<string, number>>): Record<string, Severity> {
   return Object.fromEntries(
@@ -50,6 +53,10 @@ export function CheckInCard({
   // isPending lags a render behind, so a fast second tap needs a synchronous guard.
   const isSaving = useRef(false);
   const isUpdate = Object.keys(answered).length > 0;
+  // Set while a picked answer is on screen; taps in that window are ignored.
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => clearTimeout(advanceTimer.current ?? undefined), []);
 
   const remaining = codes.filter((code) => answers[code] === undefined).length;
   const progress = codes.length > 0 ? (codes.length - remaining) / codes.length : 1;
@@ -88,15 +95,18 @@ export function CheckInCard({
   };
 
   const handlePick = (severity: Severity) => {
-    if (!open || isSaving.current) return;
+    if (!open || isSaving.current || advanceTimer.current) return;
     const next = { ...answers, [open.code]: severity };
     setAnswers(next);
-    if (index < symptoms.length - 1) {
-      goTo(index + 1);
-      return;
-    }
-    // Questions run in order from the first, so the last answer completes the check-in.
-    save(next);
+    advanceTimer.current = setTimeout(() => {
+      advanceTimer.current = null;
+      if (index < symptoms.length - 1) {
+        goTo(index + 1);
+        return;
+      }
+      // Questions run in order from the first, so the last answer completes the check-in.
+      save(next);
+    }, ADVANCE_DELAY_MS);
   };
 
   if (symptoms.length === 0) {
@@ -130,7 +140,7 @@ export function CheckInCard({
       </View>
 
       {open && (
-        <Card tone="soft">
+        <Card tone="soft" style={styles.questionPanel}>
           <Text accessibilityRole="header" style={styles.question}>
             {question}
           </Text>
@@ -163,6 +173,7 @@ const styles = StyleSheet.create({
   toGo: { ...type.label, fontSize: 18, color: colors.textMuted },
   track: { height: 8, borderRadius: 4, backgroundColor: colors.progressTrack, overflow: 'hidden' },
   fill: { height: 8, borderRadius: 4, backgroundColor: colors.accent },
+  questionPanel: { padding: spacing.md, gap: spacing.sm },
   question: { ...type.question, color: colors.text },
   hint: { ...type.body, fontSize: 17, lineHeight: 24, color: colors.tealDark },
   muted: { ...type.body, color: colors.textMuted },

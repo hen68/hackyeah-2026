@@ -15,11 +15,12 @@ type OnboardingScreenProps = {
   /** 1-based step; step 1 has no back button (the account already exists). */
   step: number;
   trailing?: ReactNode;
-  footer: ReactNode;
+  /** Pinned below the scroll view; omit to keep every action inside the scrolling body. */
+  footer?: ReactNode;
   children: ReactNode;
 };
 
-/** Frame for onboarding steps 1–5: progress header, scrolling body, pinned footer. */
+/** Frame for onboarding steps 1–5: progress header, scrolling body, optional pinned footer. */
 export function OnboardingScreen({ step, trailing, footer, children }: OnboardingScreenProps) {
   return (
     <Screen>
@@ -27,7 +28,7 @@ export function OnboardingScreen({ step, trailing, footer, children }: Onboardin
         <StepProgress step={step} leading={step > FIRST_STEP ? <BackButton /> : null} trailing={trailing} />
         {children}
       </ScrollView>
-      <View style={styles.footer}>{footer}</View>
+      {footer && <View style={styles.footer}>{footer}</View>}
     </Screen>
   );
 }
@@ -86,7 +87,8 @@ export const onboardingStyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
   body: { gap: SECTION_GAP, paddingTop: spacing.md, paddingBottom: spacing.xl },
-  footer: { paddingTop: spacing.xs, paddingBottom: spacing.xxl },
+  // Screen already pads the bottom safe area; this only separates the button from the home indicator.
+  footer: { paddingTop: spacing.xs, paddingBottom: spacing.xs },
   title: onboardingStyles.title,
   options: { gap: spacing.sm },
   hint: { ...type.body, color: colors.textMuted },
