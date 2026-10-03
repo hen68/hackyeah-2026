@@ -10,6 +10,14 @@ export async function listWearableConnections(patientId: string): Promise<Wearab
   return data;
 }
 
+/** Marks a provider as connected (no sync yet). Re-connecting keeps the original row. */
+export async function connectWearable(patientId: string, provider: string): Promise<void> {
+  const { error } = await supabase
+    .from('wearable_connections')
+    .upsert({ patient_id: patientId, provider }, { onConflict: 'patient_id,provider', ignoreDuplicates: true });
+  if (error) throw error;
+}
+
 /** Nights for one patient-local date (YYYY-MM-DD), one row per provider. */
 export async function getWearableNights(patientId: string, nightOf: string): Promise<WearableNight[]> {
   const { data, error } = await supabase

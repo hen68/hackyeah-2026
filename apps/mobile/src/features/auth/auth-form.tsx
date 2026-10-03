@@ -1,8 +1,8 @@
-import { Link, router, type Href } from 'expo-router';
+import { Link, type Href } from 'expo-router';
 import { useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { Icon } from '@/components/ui/icon';
+import { BackButton } from '@/components/ui/back-button';
 import { PrimaryButton } from '@/components/ui/primary-button';
 import { Screen } from '@/components/ui/screen';
 import { toUserMessage } from '@/lib/errors';
@@ -11,7 +11,6 @@ import { colors, radii, sizes, spacing, type } from '@/theme/tokens';
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /** Matches `minimum_password_length` in supabase/config.toml and the hosted project. */
 export const MIN_PASSWORD_LENGTH = 8;
-const BACK_BUTTON_SIZE = 48;
 
 export type AuthFormMode = 'register' | 'signIn';
 
@@ -86,13 +85,7 @@ export function AuthForm({ mode, onSubmit }: AuthFormProps) {
     <Screen>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Pressable
-            onPress={() => router.back()}
-            accessibilityRole="button"
-            accessibilityLabel="Back"
-            style={styles.back}>
-            <Icon name="back" size={22} strokeWidth={2.2} />
-          </Pressable>
+          <BackButton />
 
           <Text accessibilityRole="header" style={styles.title}>
             {copy.title}
@@ -169,14 +162,6 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.xxl,
-  },
-  back: {
-    width: BACK_BUTTON_SIZE,
-    height: BACK_BUTTON_SIZE,
-    borderRadius: radii.pill,
-    backgroundColor: colors.appBackground,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   title: { ...type.title, color: colors.text },
   lead: { ...type.body, color: colors.textMuted },

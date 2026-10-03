@@ -522,6 +522,35 @@ export type Database = {
           },
         ]
       }
+      onboarding_answers: {
+        Row: {
+          answer: string
+          created_at: string
+          patient_id: string
+          question: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          patient_id: string
+          question: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          patient_id?: string
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_answers_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age_band: string | null
