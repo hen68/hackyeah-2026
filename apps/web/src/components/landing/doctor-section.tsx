@@ -18,12 +18,12 @@ export function DoctorSection() {
           <ul className="flex flex-col">
             {REPORT_POINTS.map((point) => (
               <li key={point} className="flex items-start gap-3.5 border-t border-line py-3.5 text-[19px] leading-[1.45] last:border-b">
-                <Icon path={CHECK_PATH} size={22} strokeWidth={2} className="mt-0.5 shrink-0 text-rose" />
+                <Icon path={CHECK_PATH} size={22} strokeWidth={2} className="mt-0.5 shrink-0 text-secondary" />
                 <span>{point}</span>
               </li>
             ))}
           </ul>
-          <p className="border-l-2 border-rose pl-4 text-lg leading-[1.45] font-semibold">
+          <p className="border-l-2 border-primary pl-4 text-lg leading-[1.45] font-semibold">
             This is not a diagnosis. Only your doctor can confirm it.
           </p>
         </div>
@@ -42,11 +42,11 @@ function ReportPreview() {
   return (
     <figure
       aria-label="Example pre-visit report"
-      className="flex min-w-0 flex-col gap-5 rounded-sm border border-line bg-white p-8 shadow-[0_30px_60px_-30px_rgba(25,28,31,0.25)] lg:col-span-6 lg:rotate-[0.6deg]"
+      className="flex min-w-0 flex-col gap-5 rounded-2xl border border-line/60 bg-white p-8 shadow-[0_4px_20px_rgba(0,51,31,0.03)] lg:col-span-6"
     >
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink pb-4">
         <div className="flex flex-col gap-1">
-          <span className="text-[15px] font-semibold tracking-[0.12em] text-rose uppercase">Digna</span>
+          <span className="text-[15px] font-semibold tracking-[0.12em] text-secondary uppercase">Digna</span>
           <span className="font-serif text-[28px] leading-tight">Pre-visit report</span>
         </div>
         <span className="text-right text-[15px] leading-normal text-muted">
@@ -62,11 +62,11 @@ function ReportPreview() {
           {SAMPLE_FLAGS.map((flag, index) => (
             <li
               key={flag.symptom}
-              className="flex items-start gap-3 border-l-2 border-rose bg-rose-soft/60 px-3.5 py-3"
+              className="flex items-start gap-3 border-l-2 border-primary bg-sage/60 px-3.5 py-3"
             >
               <span
                 aria-hidden="true"
-                className="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-rose text-sm font-bold text-white"
+                className="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white"
               >
                 {index + 1}
               </span>
@@ -89,7 +89,7 @@ function ReportPreview() {
               <span className="font-semibold">{symptom.name}</span>
               <span aria-hidden="true" className="h-2 rounded-full bg-sand">
                 <span
-                  className="block h-2 rounded-full bg-rose"
+                  className="block h-2 rounded-full bg-primary"
                   style={{ width: toPercent(symptom.days) }}
                 />
               </span>

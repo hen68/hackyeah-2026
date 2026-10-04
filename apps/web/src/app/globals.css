@@ -1,20 +1,21 @@
 @import "tailwindcss";
 
-/* Digna web tokens. Severity colours mirror apps/mobile/src/theme/tokens.ts. */
+/* Digna web tokens (Atelier Digna design guide). Severity colours mirror apps/mobile/src/theme/tokens.ts. */
 @theme {
-  --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-serif: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-jakarta), "Inter", system-ui, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
 
-  /* Editorial palette: warm paper, one rose accent, hairlines. */
-  --color-paper: #fbf8f5;
-  --color-sand: #f4eee8;
-  --color-line: #e6dfd8;
-  --color-rose: #a3324f;
-  --color-rose-deep: #84263f;
-  --color-rose-soft: #f6e6ea;
+  /* Atelier Digna clinical palette: mint canvas, deep forest primary, sage accents. */
+  --color-paper: #f4fbf6;
+  --color-sand: #eff5f0;
+  --color-line: #d5dcd7;
+  --color-primary: #00331f;
+  --color-primary-hover: #004d2f;
+  --color-secondary: #2e6347;
+  --color-sage: #d9e8de;
 
-  --color-ink: #191c1f;
-  --color-muted: #4b525b;
+  --color-ink: #0e1f16;
+  --color-muted: #405147;
 
   --color-severity-1: #1da4a6;
   --color-severity-2: #6fbf8a;
