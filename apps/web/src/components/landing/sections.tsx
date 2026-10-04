@@ -9,7 +9,6 @@ import {
   STATS,
   STEPS,
   VALUE_PROPS,
-  VIDEO_URL,
   type PrivacyIcon,
   type ValueIcon,
 } from "./content";
@@ -74,35 +73,6 @@ export function ValueProps() {
               </li>
             ))}
           </ul>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/** Shown only when a demo video is configured. */
-export function DemoVideo() {
-  if (!VIDEO_URL) return null;
-  const isFile = /\.(mp4|webm)(\?|$)/i.test(VIDEO_URL);
-  return (
-    <section id="demo" aria-labelledby="demo-title" className="border-y border-line bg-sand">
-      <div className={`${CONTAINER} flex flex-col gap-10 ${SECTION_Y}`}>
-        <SectionHeading id="demo-title" eyebrow="See it in action">
-          Watch the demo
-        </SectionHeading>
-        <div className="aspect-video w-full max-w-[960px] overflow-hidden rounded-2xl bg-ink">
-          {isFile ? (
-            <video src={VIDEO_URL} controls preload="metadata" className="size-full" />
-          ) : (
-            <iframe
-              src={VIDEO_URL}
-              title="Digna demo video"
-              loading="lazy"
-              allow="accelerometer; encrypted-media; picture-in-picture; fullscreen"
-              allowFullScreen
-              className="size-full"
-            />
-          )}
         </div>
       </div>
     </section>
