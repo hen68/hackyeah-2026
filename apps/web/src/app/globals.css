@@ -12,6 +12,10 @@
   --color-primary-hover: #b81c4b; /* accentPressed */
   --color-secondary: #b81c4b; /* accent text: accentPressed keeps AA contrast on paper */
 
+  --color-hero-from: #ffc0cd; /* heroGradient */
+  --color-hero-to: #ff8fa6;
+  --color-hero-ink: #4a1f2c; /* heroText */
+
   --color-ink: #191c1f;
   --color-muted: #4b525b;
 }

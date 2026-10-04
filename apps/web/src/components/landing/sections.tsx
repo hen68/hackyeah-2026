@@ -157,7 +157,7 @@ export function Faq() {
 
 export function ClosingCta() {
   return (
-    <section aria-labelledby="cta-title" className="bg-ink text-paper">
+    <section aria-labelledby="cta-title" className="bg-linear-to-b from-hero-from to-hero-to text-hero-ink">
       <div className={`${CONTAINER} flex flex-col gap-8 py-[clamp(72px,10vw,120px)]`}>
         <h2
           id="cta-title"
@@ -165,7 +165,7 @@ export function ClosingCta() {
         >
           Coming soon to iPhone and Android.
         </h2>
-        <p className="text-xl text-paper/80">Start your first check-in on launch day.</p>
+        <p className="text-xl">Start your first check-in on launch day.</p>
         {DEMO_URL && (
           <a
             href={DEMO_URL}
@@ -174,7 +174,7 @@ export function ClosingCta() {
             Try it for free
           </a>
         )}
-        <StoreStatus className="text-paper" />
+        <StoreStatus className="text-hero-ink" />
       </div>
     </section>
   );
@@ -182,11 +182,11 @@ export function ClosingCta() {
 
 export function SiteFooter() {
   return (
-    <footer className="bg-ink text-paper/80">
-      <div className={`${CONTAINER} flex flex-col gap-10 border-t border-white/15 pt-12 pb-14`}>
+    <footer className="bg-sand text-muted">
+      <div className={`${CONTAINER} flex flex-col gap-10 pt-12 pb-14`}>
         <div className="flex flex-wrap justify-between gap-x-12 gap-y-8">
           <div className="flex max-w-[52ch] flex-col gap-3">
-            <span className="flex items-center gap-2 font-bold text-2xl text-paper">
+            <span className="flex items-center gap-2 font-bold text-2xl text-ink">
               <LogoMark size={22} />
               Digna
             </span>
@@ -199,7 +199,7 @@ export function SiteFooter() {
             <ul className="flex flex-col gap-1 text-lg">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href} className="flex min-h-11 items-center text-paper underline-offset-4 hover:underline">
+                  <a href={link.href} className="flex min-h-11 items-center text-ink underline-offset-4 hover:underline">
                     {link.label}
                   </a>
                 </li>
@@ -207,7 +207,7 @@ export function SiteFooter() {
             </ul>
           </nav>
         </div>
-        <div className="flex flex-wrap justify-between gap-4 border-t border-white/15 pt-6 text-base">
+        <div className="flex flex-wrap justify-between gap-4 border-t border-line pt-6 text-base">
           <span>{BUILT_WITH}</span>
           <span>© {new Date().getFullYear()} Digna</span>
         </div>
