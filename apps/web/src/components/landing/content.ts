@@ -7,10 +7,8 @@ export const NAV_LINKS = [
   { href: "#privacy", label: "Privacy" },
 ] as const;
 
-/** Prototype and demo video; the matching buttons and section appear only when set on the host. */
+/** Prototype link; the "Try it for free" buttons appear only when set on the host. */
 export const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL || undefined;
-/** Embeddable video URL (YouTube/Vimeo embed) or a direct .mp4/.webm file. */
-export const VIDEO_URL = process.env.NEXT_PUBLIC_VIDEO_URL || undefined;
 
 export const STORES = ["App Store", "Google Play"] as const;
 export type Store = (typeof STORES)[number];
