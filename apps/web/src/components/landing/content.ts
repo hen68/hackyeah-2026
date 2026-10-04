@@ -77,7 +77,7 @@ export const PRIVACY_PROMISES = [
 export type PrivacyIcon = (typeof PRIVACY_PROMISES)[number]["icon"];
 
 /** Production origin for metadata, sitemap and robots; set on the host. */
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export const STATS = [
   {
