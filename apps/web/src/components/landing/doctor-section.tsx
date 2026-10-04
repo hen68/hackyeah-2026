@@ -42,12 +42,12 @@ function ReportPreview() {
   return (
     <figure
       aria-label="Example pre-visit report"
-      className="flex min-w-0 flex-col gap-5 rounded-2xl border border-line/60 bg-white p-8 shadow-[0_4px_20px_rgba(0,51,31,0.03)] lg:col-span-6"
+      className="flex min-w-0 flex-col gap-5 rounded-3xl border border-line/60 bg-white p-8 shadow-[0_4px_20px_rgba(25,28,31,0.03)] lg:col-span-6"
     >
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink pb-4">
         <div className="flex flex-col gap-1">
           <span className="text-[15px] font-semibold tracking-[0.12em] text-secondary uppercase">Digna</span>
-          <span className="font-serif text-[28px] leading-tight">Pre-visit report</span>
+          <span className="font-bold text-[28px] leading-tight">Pre-visit report</span>
         </div>
         <span className="text-right text-[15px] leading-normal text-muted">
           Anna K., 52
@@ -62,7 +62,7 @@ function ReportPreview() {
           {SAMPLE_FLAGS.map((flag, index) => (
             <li
               key={flag.symptom}
-              className="flex items-start gap-3 border-l-2 border-primary bg-sage/60 px-3.5 py-3"
+              className="flex items-start gap-3 border-l-2 border-primary bg-blush/60 px-3.5 py-3"
             >
               <span
                 aria-hidden="true"

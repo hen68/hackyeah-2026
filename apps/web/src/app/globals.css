@@ -1,27 +1,19 @@
 @import "tailwindcss";
 
-/* Digna web tokens (Atelier Digna design guide). Severity colours mirror apps/mobile/src/theme/tokens.ts. */
+/* Digna web tokens. Every colour mirrors apps/mobile/src/theme/tokens.ts so web and app feel the same. */
 @theme {
-  --font-sans: var(--font-jakarta), "Inter", system-ui, sans-serif;
-  --font-serif: var(--font-playfair), Georgia, serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
 
-  /* Atelier Digna clinical palette: mint canvas, deep forest primary, sage accents. */
-  --color-paper: #f4fbf6;
-  --color-sand: #eff5f0;
-  --color-line: #d5dcd7;
-  --color-primary: #00331f;
-  --color-primary-hover: #004d2f;
-  --color-secondary: #2e6347;
-  --color-sage: #d9e8de;
+  --color-paper: #f7f8f9; /* appBackground */
+  --color-sand: #fff3f5; /* softPink */
+  --color-blush: #fce4ea;
+  --color-line: #e2e2e5; /* border */
+  --color-primary: #e0245e; /* accent */
+  --color-primary-hover: #b81c4b; /* accentPressed */
+  --color-secondary: #b81c4b; /* accent text: accentPressed keeps AA contrast on paper */
 
-  --color-ink: #0e1f16;
-  --color-muted: #405147;
-
-  --color-severity-1: #1da4a6;
-  --color-severity-2: #6fbf8a;
-  --color-severity-3: #f2b33d;
-  --color-severity-4: #f08a3c;
-  --color-severity-5: #e0245e;
+  --color-ink: #191c1f;
+  --color-muted: #4b525b;
 }
 
 html {

@@ -16,16 +16,16 @@ export default function OpengraphImage() {
           justifyContent: "center",
           gap: 28,
           padding: 80,
-          background: "#F4FBF6",
-          borderTop: "16px solid #00331F",
-          color: "#0E1F16",
+          background: "#F7F8F9",
+          borderTop: "16px solid #E0245E",
+          color: "#191C1F",
         }}
       >
-        <div style={{ fontSize: 40, fontWeight: 700, color: "#00331F" }}>Digna</div>
-        <div style={{ fontSize: 84, fontWeight: 400, lineHeight: 1.05, letterSpacing: -2 }}>
+        <div style={{ fontSize: 40, fontWeight: 700, color: "#E0245E" }}>Digna</div>
+        <div style={{ fontSize: 84, fontWeight: 700, lineHeight: 1.05, letterSpacing: -2 }}>
           Feel understood through menopause
         </div>
-        <div style={{ fontSize: 36, maxWidth: 900, color: "#405147" }}>
+        <div style={{ fontSize: 36, maxWidth: 900, color: "#4B525B" }}>
           Tell me how you feel each day. Before every visit, your doctor gets a clear report.
         </div>
       </div>
