@@ -1,5 +1,5 @@
 import { CONTAINER, LogoMark, StoreStatus } from "./brand";
-import { NAV_LINKS, PREVIEW_SELECTED_SEVERITY, SEVERITY_SCALE } from "./content";
+import { DEMO_URL, NAV_LINKS, PREVIEW_SELECTED_SEVERITY, SEVERITY_SCALE } from "./content";
 
 export function SiteHeader() {
   return (
@@ -34,7 +34,7 @@ export function Hero() {
     <section aria-labelledby="hero-title" className="overflow-hidden">
       <div className={`${CONTAINER} grid items-center gap-x-12 gap-y-16 py-[clamp(56px,9vw,112px)] lg:grid-cols-12`}>
         <div className="flex min-w-0 flex-col gap-7 lg:col-span-7">
-          <span className="text-base font-semibold tracking-[0.12em] text-rose uppercase">
+          <span className="text-base font-semibold tracking-[0.12em] text-secondary uppercase">
             Your daily menopause companion
           </span>
           <h1
@@ -44,22 +44,36 @@ export function Hero() {
             Feel understood through menopause.
           </h1>
           <p className="max-w-[36ch] text-[clamp(20px,1.8vw,23px)] leading-[1.5] text-muted">
-            Tell me how you feel each day. Before every visit, your doctor gets a clear report.
+            Tell me how you feel, any time. Your doctor gets a clear report, with your watch data and a summary of our conversations.
           </p>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-5 pt-2">
-            <a
-              href="#how"
-              className="flex min-h-14 items-center rounded-full bg-rose px-8 text-lg font-semibold text-white transition-colors hover:bg-rose-deep"
-            >
-              See how it works
-            </a>
+            {DEMO_URL ? (
+              <>
+                <a
+                  href={DEMO_URL}
+                  className="flex min-h-14 items-center rounded-full bg-primary px-8 text-lg font-semibold text-white transition-colors hover:bg-primary-hover"
+                >
+                  Try it for free
+                </a>
+                <a href="#how" className="flex min-h-14 items-center text-lg text-ink underline underline-offset-[6px]">
+                  See how it works
+                </a>
+              </>
+            ) : (
+              <a
+                href="#how"
+                className="flex min-h-14 items-center rounded-full bg-primary px-8 text-lg font-semibold text-white transition-colors hover:bg-primary-hover"
+              >
+                See how it works
+              </a>
+            )}
             <StoreStatus />
           </div>
         </div>
         <div className="relative flex justify-center lg:col-span-5">
           <div
             aria-hidden="true"
-            className="absolute top-1/2 left-1/2 size-[min(520px,120%)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose-soft"
+            className="absolute top-1/2 left-1/2 size-[min(520px,120%)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-sage"
           />
           <PhonePreview />
         </div>
@@ -73,20 +87,20 @@ function PhonePreview() {
   return (
     <figure
       aria-label="Preview of the Digna daily check-in"
-      className="relative w-full max-w-[340px] rounded-[48px] bg-ink p-2.5 shadow-[0_40px_80px_-24px_rgba(25,28,31,0.35)]"
+      className="relative w-full max-w-[340px] rounded-[48px] bg-ink p-2.5 shadow-[0_4px_20px_rgba(0,51,31,0.08)]"
     >
       <div className="flex flex-col gap-4 rounded-[40px] bg-paper px-4 pt-12 pb-6">
         <div className="flex flex-col gap-0.5 px-1">
           <span className="text-[15px] text-muted">Tuesday, 20 October</span>
           <span className="font-serif text-[26px] leading-tight">Good morning, Anna</span>
         </div>
-        <div className="flex flex-col gap-3 rounded-[24px] bg-white px-4 py-5 shadow-[0_1px_2px_rgba(25,28,31,0.06)]">
+        <div className="flex flex-col gap-3 rounded-2xl border border-line/60 bg-white px-4 py-5 shadow-[0_4px_20px_rgba(0,51,31,0.03)]">
           <div className="flex items-baseline justify-between gap-2">
             <span className="text-lg font-semibold">How is today?</span>
             <span className="text-[15px] text-muted">1 of 8 done</span>
           </div>
           <div className="h-1 rounded-full bg-line">
-            <div className="h-1 w-[13%] rounded-full bg-rose" />
+            <div className="h-1 w-[13%] rounded-full bg-primary" />
           </div>
           <span className="pt-1 text-[17px] leading-snug font-semibold">How much did you sweat at night?</span>
           <ul className="flex flex-col gap-2">

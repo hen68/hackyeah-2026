@@ -35,7 +35,7 @@ const LOGO_PATH = "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM8 12.5c1.2 2 2.6 3 4 3s2
 
 /** The Digna smile mark; always pair it with the "Digna" wordmark. */
 export function LogoMark({ size = 28 }: { size?: number }) {
-  return <Icon path={LOGO_PATH} size={size} strokeWidth={1.8} className="text-rose" />;
+  return <Icon path={LOGO_PATH} size={size} strokeWidth={1.8} className="text-secondary" />;
 }
 
 const STORE_ICON_PATHS: Record<Store, string> = {
@@ -69,7 +69,7 @@ type SectionHeadingProps = {
 export function SectionHeading({ id, eyebrow, children }: SectionHeadingProps) {
   return (
     <div className="flex max-w-[640px] flex-col gap-4">
-      <span className="text-base font-semibold tracking-[0.12em] text-rose uppercase">{eyebrow}</span>
+      <span className="text-base font-semibold tracking-[0.12em] text-secondary uppercase">{eyebrow}</span>
       <h2
         id={id}
         className="font-serif text-[clamp(34px,4.2vw,52px)] leading-[1.08] font-normal tracking-[-0.015em]"

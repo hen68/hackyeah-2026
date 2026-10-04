@@ -1,10 +1,16 @@
 /** Static copy and sample data for the landing page. */
 
 export const NAV_LINKS = [
+  { href: "#value", label: "What you get" },
   { href: "#how", label: "How it works" },
   { href: "#doctor", label: "For your doctor" },
   { href: "#privacy", label: "Privacy" },
 ] as const;
+
+/** Prototype and demo video; the matching buttons and section appear only when set on the host. */
+export const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL || undefined;
+/** Embeddable video URL (YouTube/Vimeo embed) or a direct .mp4/.webm file. */
+export const VIDEO_URL = process.env.NEXT_PUBLIC_VIDEO_URL || undefined;
 
 export const STORES = ["App Store", "Google Play"] as const;
 export type Store = (typeof STORES)[number];
@@ -20,6 +26,27 @@ export const SEVERITY_SCALE = [
 
 export const PREVIEW_SELECTED_SEVERITY = 4;
 
+export const VALUE_PROPS = [
+  {
+    icon: "chat",
+    title: "A companion with you 24/7",
+    body: "Talk to Digna any time of day or night. Its answers are fine-tuned with doctors from menopause clinics, so it asks what a clinician would want to know.",
+  },
+  {
+    icon: "context",
+    title: "More context for your doctor's diagnosis",
+    body: "Your doctor gets a summary of your conversations with Digna, plus the data from your watch. A fuller picture than a few minutes in the surgery.",
+  },
+] as const;
+
+export type ValueIcon = (typeof VALUE_PROPS)[number]["icon"];
+
+export const DEVICES = {
+  title: "Works with your watch",
+  body: "Connect a smartwatch or other wearable and Digna adds sleep, heart rate and activity to your log, with nothing extra to type.",
+  items: ["Sleep", "Heart rate", "Activity"],
+} as const;
+
 export const STEPS = [
   {
     title: "Check in each day",
@@ -27,7 +54,7 @@ export const STEPS = [
   },
   {
     title: "See your patterns",
-    body: "I spot patterns and tell you what's worth showing your doctor. Your watch can fill in how you slept.",
+    body: "I spot patterns and tell you what's worth showing your doctor. Your watch or wearable fills in how you slept and how active you were.",
   },
   {
     title: "Bring a clear report",
@@ -38,7 +65,8 @@ export const STEPS = [
 export const REPORT_POINTS = [
   "Which symptoms you had, how often and how strong",
   "What changed since the month before",
-  "How you slept, from your watch",
+  "How you slept and your heart rate, from your watch",
+  "A summary of your conversations with Digna",
   "Your own words and the questions you want to ask",
 ] as const;
 
@@ -77,7 +105,7 @@ export const PRIVACY_PROMISES = [
 export type PrivacyIcon = (typeof PRIVACY_PROMISES)[number]["icon"];
 
 /** Production origin for metadata, sitemap and robots; set on the host. */
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export const STATS = [
   {
