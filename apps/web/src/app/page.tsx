@@ -3,10 +3,12 @@ import { DoctorSection } from "@/components/landing/doctor-section";
 import { Hero, SiteHeader } from "@/components/landing/hero";
 import {
   ClosingCta,
+  DemoVideo,
   Faq,
   HowItWorks,
   PrivacySection,
   SiteFooter,
+  ValueProps,
   WhyItMatters,
 } from "@/components/landing/sections";
 
@@ -31,6 +33,8 @@ export default function Home() {
       <SiteHeader />
       <main id="main" tabIndex={-1} className="flex flex-col">
         <Hero />
+        <DemoVideo />
+        <ValueProps />
         <WhyItMatters />
         <HowItWorks />
         <DoctorSection />

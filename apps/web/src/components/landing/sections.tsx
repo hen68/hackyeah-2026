@@ -1,5 +1,18 @@
 import { CONTAINER, Icon, LogoMark, SectionHeading, StoreStatus } from "./brand";
-import { BUILT_WITH, FAQS, NAV_LINKS, PRIVACY_PROMISES, STATS, STEPS, type PrivacyIcon } from "./content";
+import {
+  BUILT_WITH,
+  DEMO_URL,
+  DEVICES,
+  FAQS,
+  NAV_LINKS,
+  PRIVACY_PROMISES,
+  STATS,
+  STEPS,
+  VALUE_PROPS,
+  VIDEO_URL,
+  type PrivacyIcon,
+  type ValueIcon,
+} from "./content";
 
 const SECTION_Y = "py-[clamp(72px,10vw,128px)]";
 
@@ -23,6 +36,74 @@ export function WhyItMatters() {
             </li>
           ))}
         </ul>
+      </div>
+    </section>
+  );
+}
+
+const VALUE_ICON_PATHS: Record<ValueIcon, string> = {
+  chat: "M4 5.5h16v10H9.5L5 19.5v-4H4zM8 9.5h8M8 12h5",
+  context: "M3 12h3.5l2-6 4 12 2.5-8 1.5 2H21",
+};
+
+export function ValueProps() {
+  return (
+    <section id="value" aria-labelledby="value-title">
+      <div className={`${CONTAINER} flex flex-col gap-14 ${SECTION_Y}`}>
+        <SectionHeading id="value-title" eyebrow="What you get">
+          Support every day. A fuller picture for your doctor.
+        </SectionHeading>
+        <ul className="grid gap-x-12 gap-y-10 md:grid-cols-2">
+          {VALUE_PROPS.map((prop) => (
+            <li key={prop.title} className="flex flex-col gap-3 border-t border-ink pt-6">
+              <Icon path={VALUE_ICON_PATHS[prop.icon]} size={28} strokeWidth={1.6} className="text-rose" />
+              <h3 className="text-[24px] leading-tight font-semibold">{prop.title}</h3>
+              <p className="max-w-[48ch] text-[19px] leading-normal text-muted">{prop.body}</p>
+            </li>
+          ))}
+        </ul>
+        <div className="flex flex-col gap-4 rounded-[24px] bg-sand px-8 py-8 md:flex-row md:items-center md:justify-between md:gap-12">
+          <div className="flex max-w-[56ch] flex-col gap-2">
+            <h3 className="text-[24px] leading-tight font-semibold">{DEVICES.title}</h3>
+            <p className="text-[19px] leading-normal text-muted">{DEVICES.body}</p>
+          </div>
+          <ul aria-label="Data we collect from wearables" className="flex flex-wrap gap-3">
+            {DEVICES.items.map((item) => (
+              <li key={item} className="rounded-full border border-ink px-5 py-2 text-lg">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Shown only when a demo video is configured. */
+export function DemoVideo() {
+  if (!VIDEO_URL) return null;
+  const isFile = /\.(mp4|webm)(\?|$)/i.test(VIDEO_URL);
+  return (
+    <section id="demo" aria-labelledby="demo-title" className="border-y border-line bg-sand">
+      <div className={`${CONTAINER} flex flex-col gap-10 ${SECTION_Y}`}>
+        <SectionHeading id="demo-title" eyebrow="See it in action">
+          Watch the demo
+        </SectionHeading>
+        <div className="aspect-video w-full max-w-[960px] overflow-hidden rounded-[24px] bg-ink">
+          {isFile ? (
+            <video src={VIDEO_URL} controls preload="metadata" className="size-full" />
+          ) : (
+            <iframe
+              src={VIDEO_URL}
+              title="Digna demo video"
+              loading="lazy"
+              allow="accelerometer; encrypted-media; picture-in-picture; fullscreen"
+              allowFullScreen
+              className="size-full"
+            />
+          )}
+        </div>
       </div>
     </section>
   );
@@ -115,6 +196,14 @@ export function ClosingCta() {
           Coming soon to iPhone and Android.
         </h2>
         <p className="text-xl text-paper/80">Start your first check-in on launch day.</p>
+        {DEMO_URL && (
+          <a
+            href={DEMO_URL}
+            className="flex min-h-14 w-fit items-center rounded-full bg-rose px-8 text-lg font-semibold text-white transition-colors hover:bg-rose-deep"
+          >
+            Try it for free
+          </a>
+        )}
         <StoreStatus className="text-paper" />
       </div>
     </section>

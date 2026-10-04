@@ -1,5 +1,5 @@
 import { CONTAINER, LogoMark, StoreStatus } from "./brand";
-import { NAV_LINKS, PREVIEW_SELECTED_SEVERITY, SEVERITY_SCALE } from "./content";
+import { DEMO_URL, NAV_LINKS, PREVIEW_SELECTED_SEVERITY, SEVERITY_SCALE } from "./content";
 
 export function SiteHeader() {
   return (
@@ -44,15 +44,29 @@ export function Hero() {
             Feel understood through menopause.
           </h1>
           <p className="max-w-[36ch] text-[clamp(20px,1.8vw,23px)] leading-[1.5] text-muted">
-            Tell me how you feel each day. Before every visit, your doctor gets a clear report.
+            Tell me how you feel, any time. Your doctor gets a clear report, with your watch data and a summary of our conversations.
           </p>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-5 pt-2">
-            <a
-              href="#how"
-              className="flex min-h-14 items-center rounded-full bg-rose px-8 text-lg font-semibold text-white transition-colors hover:bg-rose-deep"
-            >
-              See how it works
-            </a>
+            {DEMO_URL ? (
+              <>
+                <a
+                  href={DEMO_URL}
+                  className="flex min-h-14 items-center rounded-full bg-rose px-8 text-lg font-semibold text-white transition-colors hover:bg-rose-deep"
+                >
+                  Try it for free
+                </a>
+                <a href="#how" className="flex min-h-14 items-center text-lg text-ink underline underline-offset-[6px]">
+                  See how it works
+                </a>
+              </>
+            ) : (
+              <a
+                href="#how"
+                className="flex min-h-14 items-center rounded-full bg-rose px-8 text-lg font-semibold text-white transition-colors hover:bg-rose-deep"
+              >
+                See how it works
+              </a>
+            )}
             <StoreStatus />
           </div>
         </div>
