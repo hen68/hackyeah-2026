@@ -25,7 +25,7 @@ export function WhyItMatters() {
         <ul className="grid gap-x-12 gap-y-10 sm:grid-cols-2 lg:col-span-9">
           {STATS.map((stat) => (
             <li key={stat.value} className="flex flex-col gap-3">
-              <span className="font-serif text-[clamp(56px,6vw,80px)] leading-none tracking-[-0.03em]">
+              <span className="font-bold text-[clamp(56px,6vw,80px)] leading-none tracking-[-0.03em]">
                 {stat.value}
               </span>
               <p className="max-w-[34ch] text-[19px] leading-normal">{stat.body}</p>
@@ -61,7 +61,7 @@ export function ValueProps() {
             </li>
           ))}
         </ul>
-        <div className="flex flex-col gap-4 rounded-2xl bg-sand px-8 py-8 md:flex-row md:items-center md:justify-between md:gap-12">
+        <div className="flex flex-col gap-4 rounded-3xl bg-sand px-8 py-8 md:flex-row md:items-center md:justify-between md:gap-12">
           <div className="flex max-w-[56ch] flex-col gap-2">
             <h3 className="text-[24px] leading-tight font-semibold">{DEVICES.title}</h3>
             <p className="text-[19px] leading-normal text-muted">{DEVICES.body}</p>
@@ -91,7 +91,7 @@ export function HowItWorks() {
         <ol className="flex flex-col lg:col-span-7">
           {STEPS.map((step, index) => (
             <li key={step.title} className="grid grid-cols-[56px_1fr] gap-x-4 border-t border-line py-8 last:border-b">
-              <span aria-hidden="true" className="font-serif text-[28px] leading-none text-secondary">
+              <span aria-hidden="true" className="font-bold text-[28px] leading-none text-secondary">
                 {String(index + 1).padStart(2, "0")}
               </span>
               <div className="flex flex-col gap-2">
@@ -157,15 +157,15 @@ export function Faq() {
 
 export function ClosingCta() {
   return (
-    <section aria-labelledby="cta-title" className="bg-ink text-paper">
+    <section aria-labelledby="cta-title" className="bg-linear-to-b from-hero-from to-hero-to text-hero-ink">
       <div className={`${CONTAINER} flex flex-col gap-8 py-[clamp(72px,10vw,120px)]`}>
         <h2
           id="cta-title"
-          className="max-w-[18ch] font-serif text-[clamp(38px,5vw,64px)] leading-[1.05] font-normal tracking-[-0.02em]"
+          className="max-w-[18ch] font-bold text-[clamp(38px,5vw,64px)] leading-[1.05] tracking-[-0.02em]"
         >
           Coming soon to iPhone and Android.
         </h2>
-        <p className="text-xl text-paper/80">Start your first check-in on launch day.</p>
+        <p className="text-xl">Start your first check-in on launch day.</p>
         {DEMO_URL && (
           <a
             href={DEMO_URL}
@@ -174,7 +174,7 @@ export function ClosingCta() {
             Try it for free
           </a>
         )}
-        <StoreStatus className="text-paper" />
+        <StoreStatus className="text-hero-ink" />
       </div>
     </section>
   );
@@ -182,11 +182,11 @@ export function ClosingCta() {
 
 export function SiteFooter() {
   return (
-    <footer className="bg-ink text-paper/80">
-      <div className={`${CONTAINER} flex flex-col gap-10 border-t border-white/15 pt-12 pb-14`}>
+    <footer className="bg-sand text-muted">
+      <div className={`${CONTAINER} flex flex-col gap-10 pt-12 pb-14`}>
         <div className="flex flex-wrap justify-between gap-x-12 gap-y-8">
           <div className="flex max-w-[52ch] flex-col gap-3">
-            <span className="flex items-center gap-2 font-serif text-2xl text-paper">
+            <span className="flex items-center gap-2 font-bold text-2xl text-ink">
               <LogoMark size={22} />
               Digna
             </span>
@@ -199,7 +199,7 @@ export function SiteFooter() {
             <ul className="flex flex-col gap-1 text-lg">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href} className="flex min-h-11 items-center text-paper underline-offset-4 hover:underline">
+                  <a href={link.href} className="flex min-h-11 items-center text-ink underline-offset-4 hover:underline">
                     {link.label}
                   </a>
                 </li>
@@ -207,7 +207,7 @@ export function SiteFooter() {
             </ul>
           </nav>
         </div>
-        <div className="flex flex-wrap justify-between gap-4 border-t border-white/15 pt-6 text-base">
+        <div className="flex flex-wrap justify-between gap-4 border-t border-line pt-6 text-base">
           <span>{BUILT_WITH}</span>
           <span>© {new Date().getFullYear()} Digna</span>
         </div>

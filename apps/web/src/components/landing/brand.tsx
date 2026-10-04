@@ -65,14 +65,14 @@ type SectionHeadingProps = {
   children: ReactNode;
 };
 
-/** Small uppercase label over a serif heading; used by every section. */
+/** Small uppercase label over a bold heading; used by every section. */
 export function SectionHeading({ id, eyebrow, children }: SectionHeadingProps) {
   return (
     <div className="flex max-w-[640px] flex-col gap-4">
       <span className="text-base font-semibold tracking-[0.12em] text-secondary uppercase">{eyebrow}</span>
       <h2
         id={id}
-        className="font-serif text-[clamp(34px,4.2vw,52px)] leading-[1.08] font-normal tracking-[-0.015em]"
+        className="font-bold text-[clamp(34px,4.2vw,52px)] leading-[1.08] tracking-[-0.015em]"
       >
         {children}
       </h2>

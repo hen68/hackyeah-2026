@@ -13,17 +13,6 @@ export const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL || undefined;
 export const STORES = ["App Store", "Google Play"] as const;
 export type Store = (typeof STORES)[number];
 
-/** Dark numbers on dots 1–4 keep 4.5:1 contrast (matches mobile severityTextColors). */
-export const SEVERITY_SCALE = [
-  { value: 1, label: "None", dot: "bg-severity-1", ink: "text-ink" },
-  { value: 2, label: "Mild", dot: "bg-severity-2", ink: "text-ink" },
-  { value: 3, label: "Moderate", dot: "bg-severity-3", ink: "text-ink" },
-  { value: 4, label: "Strong", dot: "bg-severity-4", ink: "text-ink" },
-  { value: 5, label: "Severe", dot: "bg-severity-5", ink: "text-white" },
-] as const;
-
-export const PREVIEW_SELECTED_SEVERITY = 4;
-
 export const VALUE_PROPS = [
   {
     icon: "chat",

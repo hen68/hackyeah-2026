@@ -1,5 +1,7 @@
+import Image from "next/image";
+import appHome from "../../../public/app-home.png";
 import { CONTAINER, LogoMark, StoreStatus } from "./brand";
-import { DEMO_URL, NAV_LINKS, PREVIEW_SELECTED_SEVERITY, SEVERITY_SCALE } from "./content";
+import { DEMO_URL, NAV_LINKS } from "./content";
 
 export function SiteHeader() {
   return (
@@ -8,7 +10,7 @@ export function SiteHeader() {
         aria-label="Main"
         className={`${CONTAINER} flex min-h-20 flex-wrap items-center justify-between gap-x-8 gap-y-2 py-3`}
       >
-        <a href="#top" className="flex min-h-11 items-center gap-2 font-serif text-[28px] text-ink">
+        <a href="#top" className="flex min-h-11 items-center gap-2 font-bold text-[28px] text-ink">
           <LogoMark size={26} />
           Digna
         </a>
@@ -39,7 +41,7 @@ export function Hero() {
           </span>
           <h1
             id="hero-title"
-            className="font-serif text-[clamp(44px,6.4vw,84px)] leading-[1.02] font-normal tracking-[-0.025em]"
+            className="font-bold text-[clamp(44px,6.4vw,84px)] leading-[1.02] tracking-[-0.025em]"
           >
             Feel understood through menopause.
           </h1>
@@ -73,7 +75,7 @@ export function Hero() {
         <div className="relative flex justify-center lg:col-span-5">
           <div
             aria-hidden="true"
-            className="absolute top-1/2 left-1/2 size-[min(520px,120%)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-sage"
+            className="absolute top-1/2 left-1/2 size-[min(520px,120%)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blush"
           />
           <PhonePreview />
         </div>
@@ -82,46 +84,17 @@ export function Hero() {
   );
 }
 
-/** A static picture of the app's Home check-in; not interactive. */
+/** A real screenshot of the app's Home screen in a simple phone frame. */
 function PhonePreview() {
   return (
-    <figure
-      aria-label="Preview of the Digna daily check-in"
-      className="relative w-full max-w-[340px] rounded-[48px] bg-ink p-2.5 shadow-[0_4px_20px_rgba(0,51,31,0.08)]"
-    >
-      <div className="flex flex-col gap-4 rounded-[40px] bg-paper px-4 pt-12 pb-6">
-        <div className="flex flex-col gap-0.5 px-1">
-          <span className="text-[15px] text-muted">Tuesday, 20 October</span>
-          <span className="font-serif text-[26px] leading-tight">Good morning, Anna</span>
-        </div>
-        <div className="flex flex-col gap-3 rounded-2xl border border-line/60 bg-white px-4 py-5 shadow-[0_4px_20px_rgba(0,51,31,0.03)]">
-          <div className="flex items-baseline justify-between gap-2">
-            <span className="text-lg font-semibold">How is today?</span>
-            <span className="text-[15px] text-muted">1 of 8 done</span>
-          </div>
-          <div className="h-1 rounded-full bg-line">
-            <div className="h-1 w-[13%] rounded-full bg-primary" />
-          </div>
-          <span className="pt-1 text-[17px] leading-snug font-semibold">How much did you sweat at night?</span>
-          <ul className="flex flex-col gap-2">
-            {SEVERITY_SCALE.map((s) => (
-              <li
-                key={s.value}
-                className={`flex min-h-11 items-center gap-2.5 rounded-xl px-3 text-[15px] font-medium ${
-                  s.value === PREVIEW_SELECTED_SEVERITY ? "border-2 border-ink" : "border border-line"
-                }`}
-              >
-                <span
-                  className={`flex size-6 shrink-0 items-center justify-center rounded-full text-[13px] font-bold ${s.dot} ${s.ink}`}
-                >
-                  {s.value}
-                </span>
-                {s.label}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+    <figure className="relative w-full max-w-[340px] rounded-[48px] bg-ink p-2.5 shadow-[0_24px_60px_-20px_rgba(25,28,31,0.35)]">
+      <Image
+        src={appHome}
+        alt="The Digna Home screen: a streak card and today's check-in asking how bad hot flushes were, on a 1 to 5 scale"
+        priority
+        sizes="340px"
+        className="h-auto w-full rounded-[40px]"
+      />
     </figure>
   );
 }
